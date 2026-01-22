@@ -230,9 +230,10 @@ curl -X POST {BASE_URL}/api/uk/pis/consent \
 | `redirectUri` | string | OAuth callback URL | Value from env `REDIRECT_URI` |
 | `paymentProduct` | string | Payment product type | `domestic-payment-consents` |
 | `initiation` | object | Payment initiation data | Default UK FPS payment structure |
-| `authorisation` | object | Authorisation data | Default authorisation structure |
+| `authorisation` | object | Authorisation data (not used for scheduled payments) | Default authorisation structure |
 | `scaSupportData` | object | SCA support data | Default SCA support structure |
 | `risk` | object | Risk data | Default risk structure |
+| `permission` | string | Permission for scheduled payments | `Create` (auto-set for scheduled) |
 
 **Default Payment Initiation Structure:**
 The default `initiation` includes:
@@ -243,7 +244,7 @@ The default `initiation` includes:
 - Full creditor postal address
 - Remittance information
 
-**Example with custom parameters:**
+**Example: Immediate Domestic Payment**
 ```bash
 curl -X POST {BASE_URL}/api/uk/pis/consent \
   -H "Content-Type: application/json" \
@@ -272,6 +273,93 @@ curl -X POST {BASE_URL}/api/uk/pis/consent \
     }
   }'
 ```
+
+**Example: Scheduled Domestic Payment**
+```bash
+curl -X POST {BASE_URL}/api/uk/pis/consent \
+  -H "Content-Type: application/json" \
+  -d '{
+    "providerCode": "backbase_dev_uk",
+    "redirectUri": "https://your-app.com/callback",
+    "paymentProduct": "domestic-scheduled-payment-consents",
+    "initiation": {
+      "InstructionIdentification": "SCHD001",
+      "EndToEndIdentification": "SCHEDULED-12345",
+      "LocalInstrument": "UK.OBIE.FPS",
+      "RequestedExecutionDateTime": "2026-02-15T09:00:00+00:00",
+      "InstructedAmount": {
+        "Amount": "100.00",
+        "Currency": "GBP"
+      },
+      "DebtorAccount": {
+        "SchemeName": "UK.OBIE.SortCodeAccountNumber",
+        "Identification": "11280001234567",
+        "Name": "John Doe"
+      },
+      "CreditorAccount": {
+        "SchemeName": "UK.OBIE.SortCodeAccountNumber",
+        "Identification": "08080021325698",
+        "Name": "Jane Smith"
+      },
+      "RemittanceInformation": {
+        "Reference": "Monthly payment",
+        "Unstructured": "Scheduled transfer"
+      }
+    }
+  }'
+```
+
+**Note:** For scheduled payments:
+- `RequestedExecutionDateTime` is **required** in the initiation (future date/time)
+- `permission` defaults to `"Create"` automatically
+- Do NOT include `authorisation` in the request body
+
+**Example: Domestic Standing Order**
+```bash
+curl -X POST {BASE_URL}/api/uk/pis/consent \
+  -H "Content-Type: application/json" \
+  -d '{
+    "providerCode": "backbase_dev_uk",
+    "redirectUri": "https://your-app.com/callback",
+    "paymentProduct": "domestic-standing-order-consents",
+    "permission": "Create",
+    "initiation": {
+      "Frequency": "EvryDay",
+      "Reference": "Monthly rent payment",
+      "FirstPaymentDateTime": "2026-02-01T09:00:00+00:00",
+      "FirstPaymentAmount": {
+        "Amount": "500.00",
+        "Currency": "GBP"
+      },
+      "RecurringPaymentAmount": {
+        "Amount": "500.00",
+        "Currency": "GBP"
+      },
+      "FinalPaymentDateTime": "2027-01-31T09:00:00+00:00",
+      "FinalPaymentAmount": {
+        "Amount": "500.00",
+        "Currency": "GBP"
+      },
+      "DebtorAccount": {
+        "SchemeName": "UK.OBIE.SortCodeAccountNumber",
+        "Identification": "11280001234567",
+        "Name": "John Doe"
+      },
+      "CreditorAccount": {
+        "SchemeName": "UK.OBIE.SortCodeAccountNumber",
+        "Identification": "08080021325698",
+        "Name": "Landlord Ltd"
+      }
+    }
+  }'
+```
+
+**Note:** For standing orders:
+- `paymentProduct` must be `"domestic-standing-order-consents"`
+- `Frequency` is required (e.g., `EvryDay`, `EvryWorkgDay`, `IntrvlWkDay:01:03` for every 3rd day)
+- `FirstPaymentDateTime`, `RecurringPaymentAmount` are required
+- `FinalPaymentDateTime` and `FinalPaymentAmount` are optional (omit for indefinite standing order)
+- `permission` field is automatically set to `"Create"`
 
 **Response:**
 ```json
