@@ -24,6 +24,7 @@ const router = express.Router();
  * - authorisation (optional, uses defaults if not provided)
  * - scaSupportData (optional, uses defaults if not provided)
  * - risk (optional, uses defaults if not provided)
+ * - permission (optional, defaults to 'Create' for scheduled payments)
  */
 router.post('/consent', async (req, res, next) => {
   try {
@@ -34,7 +35,8 @@ router.post('/consent', async (req, res, next) => {
       initiation,
       authorisation,
       scaSupportData,
-      risk
+      risk,
+      permission
     } = req.body;
 
     console.log(`\n📝 Creating UK PIS consent...`);
@@ -49,7 +51,8 @@ router.post('/consent', async (req, res, next) => {
       initiation,
       authorisation,
       scaSupportData,
-      risk
+      risk,
+      permission
     });
 
     res.json({

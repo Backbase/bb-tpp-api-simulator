@@ -115,6 +115,7 @@ function getDefaultRisk() {
  * @param {Object} authorisation - Authorisation data (optional, uses defaults if not provided)
  * @param {Object} scaSupportData - SCA support data (optional, uses defaults if not provided)
  * @param {Object} risk - Risk data (optional, uses defaults if not provided)
+ * @param {string} permission - Permission for scheduled payments (optional, defaults to 'Create')
  * @returns {Object} Consent details with authorization URL
  */
 export async function createPISConsent({
@@ -124,20 +125,39 @@ export async function createPISConsent({
   initiation,
   authorisation,
   scaSupportData,
-  risk
+  risk,
+  permission
 }) {
   const baseUrl = getBaseUrl();
   const scope = 'openid accounts payments'; // PIS scope includes payments
   
-  // Merge user-provided data with defaults
+  // Determine if this is a scheduled payment
+  // Payment types that require Permission field
+  const requiresPermission = 
+    paymentProduct === 'domestic-scheduled-payment-consents' ||
+    paymentProduct === 'domestic-standing-order-consents';
+  
+  const isScheduledPayment = paymentProduct === 'domestic-scheduled-payment-consents';
+  
+  // Validate RequestedExecutionDateTime for scheduled payments
+  if (isScheduledPayment && initiation && !initiation.RequestedExecutionDateTime) {
+    throw new Error('RequestedExecutionDateTime is required for scheduled payments');
+  }
+  
+  // Build consent body - same structure for all payment types
   const consentBody = {
     Data: {
-      Initiation: initiation || getDefaultInitiation(),
       Authorisation: authorisation || getDefaultAuthorisation(),
+      Initiation: initiation || getDefaultInitiation(),
       SCASupportData: scaSupportData || getDefaultSCASupportData()
     },
     Risk: risk || getDefaultRisk()
   };
+  
+  // Add Permission field for payment types that require it
+  if (requiresPermission) {
+    consentBody.Data.Permission = permission || 'Create';
+  }
   
   console.log(`🔄 Creating PIS consent for provider: ${providerCode}...`);
   console.log(`   Payment Product: ${paymentProduct}`);
