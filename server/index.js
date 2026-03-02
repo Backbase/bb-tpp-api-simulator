@@ -15,6 +15,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import ukAisRouter from './routes/uk/ais.js';
 import ukPisRouter from './routes/uk/pis.js';
+import ukCbpiiRouter from './routes/uk/cbpii.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +41,7 @@ app.use((req, res, next) => {
 // API Routes
 app.use('/api/uk/ais', ukAisRouter);
 app.use('/api/uk/pis', ukPisRouter);
+app.use('/api/uk/cbpii', ukCbpiiRouter);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -93,6 +95,18 @@ app.get('/', (req, res) => {
         path: '/api/uk/pis/consent/:consentId',
         description: 'Get UK PIS consent details by consent ID',
         example: 'curl "http://localhost:8080/api/uk/pis/consent/CONSENT_ID"'
+      },
+      createUKCBPIIConsent: {
+        method: 'POST',
+        path: '/api/uk/cbpii/consent',
+        description: 'Create UK CBPII funds-confirmation consent and get authorization URL',
+        example: 'curl -X POST http://localhost:8080/api/uk/cbpii/consent -H "Content-Type: application/json" -d "{}"'
+      },
+      getUKCBPIIConsent: {
+        method: 'GET',
+        path: '/api/uk/cbpii/consent/:consentId',
+        description: 'Get UK CBPII consent details by consent ID',
+        example: 'curl "http://localhost:8080/api/uk/cbpii/consent/CONSENT_ID"'
       }
     },
     documentation: 'See README.md for detailed examples and workflow'
@@ -130,11 +144,13 @@ app.listen(PORT, () => {
   console.log(`\n   Documentation: http://localhost:${PORT}`);
   console.log(`   Health Check:  http://localhost:${PORT}/api/health`);
   console.log('\n' + '='.repeat(70));
-  console.log('\n✨ Ready to accept UK AIS and PIS consent requests!\n');
+  console.log('\n✨ Ready to accept UK AIS, PIS and CBPII consent requests!\n');
   console.log('Quick Start (Create UK AIS Consent):');
   console.log(`   curl -X POST http://localhost:${PORT}/api/uk/ais/consent -H "Content-Type: application/json" -d "{}"\n`);
   console.log('Quick Start (Create UK PIS Consent):');
   console.log(`   curl -X POST http://localhost:${PORT}/api/uk/pis/consent -H "Content-Type: application/json" -d "{}"\n`);
+  console.log('Quick Start (Create UK CBPII Consent):');
+  console.log(`   curl -X POST http://localhost:${PORT}/api/uk/cbpii/consent -H "Content-Type: application/json" -d "{}"\n`);
 });
 
 export default app;
