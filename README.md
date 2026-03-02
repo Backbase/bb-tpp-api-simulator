@@ -68,6 +68,8 @@ docker run -d \
 **Base URL Placeholder:** `{BASE_URL}`
 - **Local:** `http://localhost:8080`
 
+**UK API version:** UK AIS and PIS consent API calls in this simulator target Open Banking `v3.1.11`.
+
 Replace `{BASE_URL}` with the appropriate URL in all examples below.
 
 ---

@@ -138,7 +138,7 @@ export async function exchangeCodeForToken(providerCode, authorizationCode, redi
  */
 export async function getAccounts(providerCode, accessToken) {
   const baseUrl = getBaseUrl();
-  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1/aisp/accounts`;
+  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1.11/aisp/accounts`;
   
   try {
     const { data } = await axios.get(url, {
@@ -163,7 +163,7 @@ export async function getAccounts(providerCode, accessToken) {
  */
 export async function refreshAccounts(providerCode, accessToken) {
   const baseUrl = getBaseUrl();
-  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1/aisp/accounts/refresh`;
+  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1.11/aisp/accounts/refresh`;
   
   try {
     const { data } = await axios.post(url, 
@@ -192,7 +192,7 @@ export async function refreshAccounts(providerCode, accessToken) {
  */
 export async function getRefreshStatus(providerCode, accessToken) {
   const baseUrl = getBaseUrl();
-  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1/aisp/accounts/refresh/status`;
+  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1.11/aisp/accounts/refresh/status`;
   
   try {
     const { data } = await axios.get(url, {
@@ -218,7 +218,7 @@ export async function getRefreshStatus(providerCode, accessToken) {
  */
 export async function getAccountTransactions(providerCode, accountId, accessToken) {
   const baseUrl = getBaseUrl();
-  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1/aisp/accounts/${encodeURIComponent(accountId)}/transactions`;
+  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1.11/aisp/accounts/${encodeURIComponent(accountId)}/transactions`;
   
   try {
     const { data } = await axios.get(url, {
@@ -244,7 +244,7 @@ export async function getAccountTransactions(providerCode, accountId, accessToke
  */
 export async function getAccountBalances(providerCode, accountId, accessToken) {
   const baseUrl = getBaseUrl();
-  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1/aisp/accounts/${encodeURIComponent(accountId)}/balances`;
+  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1.11/aisp/accounts/${encodeURIComponent(accountId)}/balances`;
   
   try {
     const { data } = await axios.get(url, {
@@ -270,7 +270,7 @@ export async function getAccountBalances(providerCode, accountId, accessToken) {
  */
 export async function getAccountStandingOrders(providerCode, accountId, accessToken) {
   const baseUrl = getBaseUrl();
-  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1/aisp/accounts/${encodeURIComponent(accountId)}/standing-orders`;
+  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1.11/aisp/accounts/${encodeURIComponent(accountId)}/standing-orders`;
   
   try {
     const { data } = await axios.get(url, {
