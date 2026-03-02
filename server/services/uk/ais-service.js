@@ -36,7 +36,7 @@ export async function createAISConsent({
   const scope = 'openid accounts payments'; // AIS scope includes accounts
   
   // Default AIS permissions for account information access
-  // Only include permissions valid for UK Open Banking v3.1
+  // Only include permissions valid for UK Open Banking v3.1.11
   const defaultAISPermissions = [
     'ReadAccountsBasic', 'ReadAccountsDetail', 'ReadBalances', 
     'ReadBeneficiariesBasic', 'ReadBeneficiariesDetail',
@@ -66,7 +66,7 @@ export async function createAISConsent({
   const clientGrantAuthorization = await getClientGrantToken(providerCode, redirectUri);
   
   // Create AIS account-access-consent (AISP endpoint)
-  const consentUrl = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1/aisp/account-access-consents`;
+  const consentUrl = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1.11/aisp/account-access-consents`;
   
   try {
     const { data } = await axios.post(consentUrl, consentBody, {
@@ -129,7 +129,7 @@ export async function createAISConsent({
  */
 export async function getConsentDetails(providerCode, consentId) {  
   const baseUrl = getBaseUrl();
-  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1/aisp/account-access-consents/${encodeURIComponent(consentId)}`;
+  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1.11/aisp/account-access-consents/${encodeURIComponent(consentId)}`;
   
   // Get client credentials token for the request
   const defaultRedirectUri = process.env.REDIRECT_URI || 'https://backbase-dev.com/callback';
@@ -167,7 +167,7 @@ export async function getConsentDetails(providerCode, consentId) {
  */
 export async function revokeAISConsent(providerCode, consentId) {
   const baseUrl = getBaseUrl();
-  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1/aisp/account-access-consents/${encodeURIComponent(consentId)}`;
+  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1.11/aisp/account-access-consents/${encodeURIComponent(consentId)}`;
   
   // Get client credentials token for the request
   const defaultRedirectUri = process.env.REDIRECT_URI || 'https://backbase-dev.com/callback';

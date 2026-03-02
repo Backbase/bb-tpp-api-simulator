@@ -169,7 +169,7 @@ export async function createPISConsent({
   const clientGrantAuthorization = await getClientGrantToken(providerCode, redirectUri);
   
   // Create PIS domestic-payment-consent (PISP endpoint)
-  const consentUrl = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1/pisp/${encodeURIComponent(paymentProduct)}`;
+  const consentUrl = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1.11/pisp/${encodeURIComponent(paymentProduct)}`;
   
   try {
     const { data } = await axios.post(consentUrl, consentBody, {
@@ -233,7 +233,7 @@ export async function createPISConsent({
  */
 export async function getConsentDetails(providerCode, consentId, paymentProduct = 'domestic-payment-consents') {
   const baseUrl = getBaseUrl();
-  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1/pisp/${encodeURIComponent(paymentProduct)}/${encodeURIComponent(consentId)}`;
+  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1.11/pisp/${encodeURIComponent(paymentProduct)}/${encodeURIComponent(consentId)}`;
   
   // Get client credentials token for the request
   const defaultRedirectUri = process.env.REDIRECT_URI || 'https://backbase-dev.com/callback';
