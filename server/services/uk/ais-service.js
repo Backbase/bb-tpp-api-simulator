@@ -54,7 +54,9 @@ export async function createAISConsent({
     Data: {
       ExpirationDateTime: expirationDateTime || isoNowPlusMinutes(60 * 24 * 30),
       Permissions: permissions || defaultAISPermissions
-    }
+    },
+    // UK AIS v3.1.11 requires Risk object, even when empty.
+    Risk: {}
   };
   
   console.log(`🔄 Creating AIS consent for provider: ${providerCode}...`);
