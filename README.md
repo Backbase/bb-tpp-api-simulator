@@ -119,6 +119,9 @@ curl -X POST {BASE_URL}/api/uk/ais/consent \
 | `permissions` | array | List of AIS permissions | All 14 standard permissions |
 | `expirationDateTime` | string | ISO 8601 date when consent expires | 30 days from now |
 
+**Note:** For UK AIS `v3.1.11`, Salt Edge requires a `Risk` object in the upstream consent payload.  
+The simulator automatically sends `Risk: {}` when creating AIS consents.
+
 **Example with custom parameters:**
 ```bash
 curl -X POST {BASE_URL}/api/uk/ais/consent \
