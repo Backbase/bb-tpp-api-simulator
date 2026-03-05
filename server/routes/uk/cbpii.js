@@ -18,7 +18,7 @@ const router = express.Router();
  * Body:
  * - providerCode (optional, defaults to env)
  * - redirectUri (optional, defaults to env)
- * - expirationDateTime (optional, default: now + 30 days)
+ * - expirationDateTime (optional, default: null)
  * - debtorAccount (optional, uses defaults if not provided)
  */
 router.post('/consent', async (req, res, next) => {

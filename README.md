@@ -119,7 +119,7 @@ curl -X POST {BASE_URL}/api/uk/ais/consent \
 | `providerCode` | string | Open Banking provider code | `backbase_dev_uk` (from env) |
 | `redirectUri` | string | OAuth callback URL | Value from env `REDIRECT_URI` |
 | `permissions` | array | List of AIS permissions | All 14 standard permissions |
-| `expirationDateTime` | string | ISO 8601 date when consent expires | 30 days from now |
+| `expirationDateTime` | string | ISO 8601 date when consent expires | `null` (unless provided) |
 
 **Note:** For UK AIS `v3.1.11`, Salt Edge requires a `Risk` object in the upstream consent payload.  
 The simulator automatically sends `Risk: {}` when creating AIS consents.
@@ -459,8 +459,8 @@ curl -X POST {BASE_URL}/api/uk/cbpii/consent \
     "redirectUri": "https://your-app.com/callback",
     "debtorAccount": {
       "SchemeName": "UK.OBIE.SortCodeAccountNumber",
-      "Identification": "98338652041193",
-      "Name": "Andrea Smith"
+      "Identification": "60304560543816",
+      "Name": "Ricardos Current Account"
     }
   }'
 ```
