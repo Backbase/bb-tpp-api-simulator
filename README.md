@@ -1,6 +1,6 @@
 # Backbase TPP API Simulator
 
-API simulator for UK Open Banking AIS (Account Information Services) and PIS (Payment Initiation Services) consent flows with SaltEdge.
+API simulator for UK Open Banking AIS (Account Information Services), PIS (Payment Initiation Services), and CBPII (Confirmation of Funds) consent flows with SaltEdge.
 
 ## Table of Contents
 
@@ -14,6 +14,8 @@ API simulator for UK Open Banking AIS (Account Information Services) and PIS (Pa
   - [5. Revoke AIS Consent](#5-revoke-ais-consent)
   - [6. Create PIS Consent](#6-create-pis-consent)
   - [7. Get PIS Consent Details](#7-get-pis-consent-details)
+  - [8. Create CBPII Consent](#8-create-cbpii-consent)
+  - [9. Get CBPII Consent Details](#9-get-cbpii-consent-details)
 - [Configuration (.env)](#configuration-env)
 
 ## Setup
@@ -68,7 +70,7 @@ docker run -d \
 **Base URL Placeholder:** `{BASE_URL}`
 - **Local:** `http://localhost:8080`
 
-**UK API version:** UK AIS and PIS consent API calls in this simulator target Open Banking `v3.1.11`.
+**UK API version:** UK AIS, PIS and CBPII consent API calls in this simulator target Open Banking `v3.1.11`.
 
 Replace `{BASE_URL}` with the appropriate URL in all examples below.
 
@@ -424,6 +426,88 @@ curl "{BASE_URL}/api/uk/pis/consent/urn-backbase_dev_uk-intent-12345?providerCod
         "PaymentContextCode": "EcommerceGoods",
         ...
       }
+    }
+  }
+}
+```
+
+---
+
+### 8. Create CBPII Consent
+Create a Confirmation of Funds (CBPII) consent and get the authorization URL.
+
+```bash
+curl -X POST {BASE_URL}/api/uk/cbpii/consent \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+**Request Body (all fields optional):**
+| Field | Type | Description | Default |
+|-------|------|-------------|---------|
+| `providerCode` | string | Open Banking provider code | `backbase_dev_uk` (from env) |
+| `redirectUri` | string | OAuth callback URL | Value from env `REDIRECT_URI` |
+| `expirationDateTime` | string | ISO 8601 date when consent expires | 30 days from now |
+| `debtorAccount` | object | Debtor account data used for CBPII consent | Default UK SortCodeAccountNumber account |
+
+**Example with custom parameters:**
+```bash
+curl -X POST {BASE_URL}/api/uk/cbpii/consent \
+  -H "Content-Type: application/json" \
+  -d '{
+    "providerCode": "backbase_dev_uk",
+    "redirectUri": "https://your-app.com/callback",
+    "debtorAccount": {
+      "SchemeName": "UK.OBIE.SortCodeAccountNumber",
+      "Identification": "98338652041193",
+      "Name": "Andrea Smith"
+    }
+  }'
+```
+
+**Response:**
+```json
+{
+  "consentId": "urn-backbase_dev_uk-intent-12345",
+  "authorizationUrl": "https://business-universal.dev.oblm.azure.backbaseservices.com/...",
+  "status": "Pending"
+}
+```
+
+➡️ Open `authorizationUrl` in a browser to authorize the CBPII consent.
+
+---
+
+### 9. Get CBPII Consent Details
+Retrieve details of an existing CBPII consent by ID.
+
+```bash
+curl "{BASE_URL}/api/uk/cbpii/consent/{CONSENT_ID}"
+```
+
+**Path Parameters:**
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `consentId` | string | The consent ID returned from create consent | Yes |
+
+**Query Parameters (optional):**
+| Parameter | Type | Description | Default |
+|-----------|------|-------------|---------|
+| `providerCode` | string | Open Banking provider code | `backbase_dev_uk` (from env) |
+
+**Example:**
+```bash
+curl "{BASE_URL}/api/uk/cbpii/consent/urn-backbase_dev_uk-intent-12345?providerCode=backbase_dev_uk"
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "Data": {
+      "ConsentId": "urn-backbase_dev_uk-intent-12345",
+      "Status": "AwaitingAuthorisation"
     }
   }
 }
