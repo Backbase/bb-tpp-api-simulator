@@ -16,8 +16,7 @@ function getDefaultDebtorAccount() {
   return {
     SchemeName: 'UK.OBIE.SortCodeAccountNumber',
     Identification: '98338652041193',
-    Name: 'Andrea Smith',
-    SecondaryIdentification: '0002'
+    Name: 'Andrea Smith'
   };
 }
 

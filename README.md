@@ -460,8 +460,7 @@ curl -X POST {BASE_URL}/api/uk/cbpii/consent \
     "debtorAccount": {
       "SchemeName": "UK.OBIE.SortCodeAccountNumber",
       "Identification": "98338652041193",
-      "Name": "Andrea Smith",
-      "SecondaryIdentification": "0002"
+      "Name": "Andrea Smith"
     }
   }'
 ```
