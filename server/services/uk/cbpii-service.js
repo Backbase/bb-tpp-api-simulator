@@ -15,8 +15,8 @@ import { getClientGrantToken, buildRequestObjectJwt } from './shared/auth.js';
 function getDefaultDebtorAccount() {
   return {
     SchemeName: 'UK.OBIE.SortCodeAccountNumber',
-    Identification: '98338652041193',
-    Name: 'Andrea Smith'
+    Identification: '60304560543816',
+    Name: 'Ricardos Current Account'
   };
 }
 
@@ -39,13 +39,9 @@ export async function createCBPIIConsent({
   // Postman collection uses this scope for UK Open Banking request-object flow.
   const scope = 'openid accounts payments';
 
-  const isoNowPlusMinutes = (minutes) => {
-    return new Date(Date.now() + minutes * 60000).toISOString();
-  };
-
   const consentBody = {
     Data: {
-      ExpirationDateTime: expirationDateTime || isoNowPlusMinutes(60 * 24 * 30),
+      ExpirationDateTime: expirationDateTime !== undefined ? expirationDateTime : null,
       DebtorAccount: debtorAccount || getDefaultDebtorAccount()
     }
   };
