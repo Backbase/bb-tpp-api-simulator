@@ -237,9 +237,9 @@ curl -X POST {BASE_URL}/api/uk/pis/consent \
 | `redirectUri` | string | OAuth callback URL | Value from env `REDIRECT_URI` |
 | `paymentProduct` | string | Payment product type | `domestic-payment-consents` |
 | `initiation` | object | Payment initiation data | Default UK FPS payment structure |
-| `authorisation` | object | Authorisation data (not used for scheduled payments) | Default authorisation structure |
-| `scaSupportData` | object | SCA support data | Default SCA support structure |
-| `risk` | object | Risk data | Default risk structure |
+| `authorisation` | object | Authorisation data (not used for scheduled payments) | Not sent unless provided |
+| `scaSupportData` | object | SCA support data | Not sent unless provided |
+| `risk` | object | Risk data | Not sent unless provided |
 | `permission` | string | Permission for scheduled payments | `Create` (auto-set for scheduled) |
 
 **Default Payment Initiation Structure:**

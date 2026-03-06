@@ -21,9 +21,9 @@ const router = express.Router();
  * - redirectUri (optional, defaults to env)
  * - paymentProduct (optional, defaults to 'domestic-payment-consents')
  * - initiation (optional, uses defaults if not provided)
- * - authorisation (optional, uses defaults if not provided)
- * - scaSupportData (optional, uses defaults if not provided)
- * - risk (optional, uses defaults if not provided)
+ * - authorisation (optional, forwarded only if explicitly provided)
+ * - scaSupportData (optional, forwarded only if explicitly provided)
+ * - risk (optional, forwarded only if explicitly provided)
  * - permission (optional, defaults to 'Create' for scheduled payments)
  */
 router.post('/consent', async (req, res, next) => {
