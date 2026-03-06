@@ -61,50 +61,6 @@ function getDefaultInitiation() {
 }
 
 /**
- * Create default authorisation data
- */
-function getDefaultAuthorisation() {
-  return {
-    AuthorisationType: 'Auth',
-    CompletionDateTime: new Date().toISOString()
-  };
-}
-
-/**
- * Create default SCA support data
- */
-function getDefaultSCASupportData() {
-  return {
-    AppliedAuthenticationApproach: 'AppliedAuthenticationApproach',
-    ReferencePaymentOrderId: '156452',
-    RequestedScaExemptionType: 'RequestedScaExemptionType'
-  };
-}
-
-/**
- * Create default risk data
- */
-function getDefaultRisk() {
-  return {
-    PaymentContextCode: 'EcommerceGoods',
-    MerchantCategoryCode: '5967',
-    MerchantCustomerIdentification: '053598653254',
-    DeliveryAddress: {
-      AddressLine: [
-        'Flat 7',
-        'Acacia Lodge'
-      ],
-      StreetName: 'Acacia Avenue',
-      BuildingNumber: '27',
-      PostCode: 'GU31 2ZZ',
-      TownName: 'Sparsholt',
-      CountrySubDivision: 'Wessex',
-      Country: 'GB'
-    }
-  };
-}
-
-/**
  * Create PIS (Payment Initiation Service) consent and return authorization URL
  * This creates a domestic-payment-consent for initiating payments
  * 
@@ -112,9 +68,9 @@ function getDefaultRisk() {
  * @param {string} redirectUri - OAuth redirect URI
  * @param {string} paymentProduct - Payment product type (default: 'domestic-payment-consents')
  * @param {Object} initiation - Payment initiation data (optional, uses defaults if not provided)
- * @param {Object} authorisation - Authorisation data (optional, uses defaults if not provided)
- * @param {Object} scaSupportData - SCA support data (optional, uses defaults if not provided)
- * @param {Object} risk - Risk data (optional, uses defaults if not provided)
+ * @param {Object} authorisation - Authorisation data (optional, forwarded only if provided)
+ * @param {Object} scaSupportData - SCA support data (optional, forwarded only if provided)
+ * @param {Object} risk - Risk data (optional, forwarded only if provided)
  * @param {string} permission - Permission for scheduled payments (optional, defaults to 'Create')
  * @returns {Object} Consent details with authorization URL
  */
@@ -147,12 +103,20 @@ export async function createPISConsent({
   // Build consent body - same structure for all payment types
   const consentBody = {
     Data: {
-      Authorisation: authorisation || getDefaultAuthorisation(),
-      Initiation: initiation || getDefaultInitiation(),
-      SCASupportData: scaSupportData || getDefaultSCASupportData()
-    },
-    Risk: risk || getDefaultRisk()
+      Initiation: initiation || getDefaultInitiation()
+    }
   };
+
+  // Optional fields are only forwarded when explicitly provided by caller
+  if (authorisation != null) {
+    consentBody.Data.Authorisation = authorisation;
+  }
+  if (scaSupportData != null) {
+    consentBody.Data.SCASupportData = scaSupportData;
+  }
+  if (risk != null) {
+    consentBody.Risk = risk;
+  }
   
   // Add Permission field for payment types that require it
   if (requiresPermission) {
