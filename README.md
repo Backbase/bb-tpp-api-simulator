@@ -16,6 +16,7 @@ API simulator for UK Open Banking AIS (Account Information Services), PIS (Payme
   - [7. Get PIS Consent Details](#7-get-pis-consent-details)
   - [8. Create CBPII Consent](#8-create-cbpii-consent)
   - [9. Get CBPII Consent Details](#9-get-cbpii-consent-details)
+  - [Default Consent Objects (Empty Request Body)](#default-consent-objects-empty-request-body)
 - [Configuration (.env)](#configuration-env)
 
 ## Setup
@@ -118,7 +119,7 @@ curl -X POST {BASE_URL}/api/uk/ais/consent \
 |-------|------|-------------|---------|
 | `providerCode` | string | Open Banking provider code | `backbase_dev_uk` (from env) |
 | `redirectUri` | string | OAuth callback URL | Value from env `REDIRECT_URI` |
-| `permissions` | array | List of AIS permissions | All 14 standard permissions |
+| `permissions` | array | List of AIS permissions | 7 default account/transaction permissions |
 | `expirationDateTime` | string | ISO 8601 date when consent expires | `null` (unless provided) |
 
 **Note:** For UK AIS `v3.1.11`, Salt Edge requires a `Risk` object in the upstream consent payload.  
@@ -248,7 +249,6 @@ The default `initiation` includes:
 - `InstructedAmount`: `20.00 GBP`
 - `DebtorAccount`: UK sort code account format
 - `CreditorAccount`: UK sort code account format
-- Full creditor postal address
 - Remittance information
 
 **Example: Immediate Domestic Payment**
@@ -508,6 +508,88 @@ curl "{BASE_URL}/api/uk/cbpii/consent/urn-backbase_dev_uk-intent-12345?providerC
     "Data": {
       "ConsentId": "urn-backbase_dev_uk-intent-12345",
       "Status": "AwaitingAuthorisation"
+    }
+  }
+}
+```
+
+---
+
+## Default Consent Objects (Empty Request Body)
+
+When caller sends `{}`, the simulator applies these defaults before calling Salt Edge.
+
+Common request defaults (applies to all three):
+- `providerCode`: `backbase_dev_uk` (or `OB_PROVIDER_CODE` from env)
+- `redirectUri`: `https://backbase-dev.com/callback` (or `REDIRECT_URI` from env)
+
+### AIS default payload sent upstream (`POST /api/uk/ais/consent`)
+
+```json
+{
+  "Data": {
+    "ExpirationDateTime": "<now + 30 days, ISO-8601>",
+    "Permissions": [
+      "ReadAccountsBasic",
+      "ReadAccountsDetail",
+      "ReadBalances",
+      "ReadTransactionsBasic",
+      "ReadTransactionsCredits",
+      "ReadTransactionsDebits",
+      "ReadTransactionsDetail"
+    ]
+  },
+  "Risk": {}
+}
+```
+
+### PIS default payload sent upstream (`POST /api/uk/pis/consent`)
+
+```json
+{
+  "paymentProduct": "domestic-payment-consents",
+  "Data": {
+    "Initiation": {
+      "InstructionIdentification": "ANSM023",
+      "EndToEndIdentification": "FRESCO.<timestamp>.GFX.37",
+      "LocalInstrument": "UK.OBIE.FPS",
+      "InstructedAmount": {
+        "Amount": "20.00",
+        "Currency": "GBP"
+      },
+      "DebtorAccount": {
+        "SchemeName": "UK.OBIE.SortCodeAccountNumber",
+        "Identification": "11280001234567",
+        "Name": "Andrea Smith",
+        "SecondaryIdentification": "0002"
+      },
+      "CreditorAccount": {
+        "SchemeName": "UK.OBIE.SortCodeAccountNumber",
+        "Identification": "08080021325698",
+        "Name": "Bob Clements",
+        "SecondaryIdentification": "0003"
+      },
+      "RemittanceInformation": {
+        "Reference": "FRESCO-037",
+        "Unstructured": "Internal ops code 5120103"
+      }
+    },
+  }
+}
+```
+
+`Authorisation`, `SCASupportData`, and `Risk` are omitted unless explicitly provided in request.
+
+### CBPII default payload sent upstream (`POST /api/uk/cbpii/consent`)
+
+```json
+{
+  "Data": {
+    "ExpirationDateTime": null,
+    "DebtorAccount": {
+      "SchemeName": "UK.OBIE.SortCodeAccountNumber",
+      "Identification": "60304560543816",
+      "Name": "Ricardos Current Account"
     }
   }
 }

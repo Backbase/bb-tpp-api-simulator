@@ -39,11 +39,8 @@ export async function createAISConsent({
   // Only include permissions valid for UK Open Banking v3.1.11
   const defaultAISPermissions = [
     'ReadAccountsBasic', 'ReadAccountsDetail', 'ReadBalances', 
-    'ReadBeneficiariesBasic', 'ReadBeneficiariesDetail',
     'ReadTransactionsBasic', 'ReadTransactionsCredits',
-    'ReadTransactionsDebits', 'ReadTransactionsDetail',
-    'ReadPAN', 'ReadParty', 'ReadDirectDebits',
-    'ReadStandingOrdersBasic', 'ReadStandingOrdersDetail'
+    'ReadTransactionsDebits', 'ReadTransactionsDetail'
   ];
   
   const isoNowPlusMinutes = (minutes) => {

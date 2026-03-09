@@ -40,23 +40,10 @@ function getDefaultInitiation() {
       Name: 'Bob Clements',
       SecondaryIdentification: '0003'
     },
-    CreditorPostalAddress: {
-      AddressLine: ['10 Downing St, Westminster, London SW1A 2AA, United Kingdom'],
-      AddressType: 'Address with house number and street',
-      Department: "Prime Minister's Office",
-      SubDepartment: 'Cabinet Office',
-      StreetName: 'Sir George Downing',
-      BuildingNumber: '10',
-      PostCode: 'SW1A 2AA',
-      TownName: 'City of Westminster London,',
-      CountrySubDivision: 'London',
-      Country: 'GB'
-    },
     RemittanceInformation: {
       Reference: 'FRESCO-037',
       Unstructured: 'Internal ops code 5120103'
-    },
-    SupplementaryData: {}
+    }
   };
 }
 
