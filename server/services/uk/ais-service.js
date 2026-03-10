@@ -46,15 +46,22 @@ export async function createAISConsent({
   const isoNowPlusMinutes = (minutes) => {
     return new Date(Date.now() + minutes * 60000).toISOString();
   };
-  
+
   const consentBody = {
     Data: {
-      ExpirationDateTime: expirationDateTime || isoNowPlusMinutes(60 * 24 * 30),
       Permissions: permissions || defaultAISPermissions
     },
     // UK AIS v3.1.11 requires Risk object, even when empty.
     Risk: {}
   };
+
+  // ExpirationDateTime: only add when explicitly provided (non-null string).
+  // Pass expirationDateTime: null in request to omit the field entirely from upstream.
+  if (expirationDateTime != null && expirationDateTime !== '') {
+    consentBody.Data.ExpirationDateTime = expirationDateTime;
+  } else if (expirationDateTime === undefined) {
+    consentBody.Data.ExpirationDateTime = isoNowPlusMinutes(60 * 24 * 30);
+  }
   
   console.log(`🔄 Creating AIS consent for provider: ${providerCode}...`);
   

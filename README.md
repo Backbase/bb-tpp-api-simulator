@@ -120,7 +120,14 @@ curl -X POST {BASE_URL}/api/uk/ais/consent \
 | `providerCode` | string | Open Banking provider code | `backbase_dev_uk` (from env) |
 | `redirectUri` | string | OAuth callback URL | Value from env `REDIRECT_URI` |
 | `permissions` | array | List of AIS permissions | 7 default account/transaction permissions |
-| `expirationDateTime` | string | ISO 8601 date when consent expires | `null` (unless provided) |
+| `expirationDateTime` | string \| null | ISO 8601 date when consent expires | See below |
+
+**`expirationDateTime` behavior:**
+- **Not provided** (omit from request): simulator sends `now + 30 days` to Salt Edge.
+- **`null`**: simulator **omits** the field entirely from the upstream payload (field not sent to Salt Edge).
+- **String** (e.g. `"2025-12-31T23:59:59Z"`): simulator forwards the value to Salt Edge.
+
+To create a consent without any expiration date sent to Salt Edge, pass `"expirationDateTime": null` in your request body.
 
 **Note:** For UK AIS `v3.1.11`, Salt Edge requires a `Risk` object in the upstream consent payload.  
 The simulator automatically sends `Risk: {}` when creating AIS consents.
@@ -135,6 +142,13 @@ curl -X POST {BASE_URL}/api/uk/ais/consent \
     "permissions": ["ReadAccountsBasic", "ReadBalances", "ReadTransactionsBasic"],
     "expirationDateTime": "2025-12-31T23:59:59Z"
   }'
+```
+
+**Example to omit ExpirationDateTime from upstream (no expiration sent to Salt Edge):**
+```bash
+curl -X POST {BASE_URL}/api/uk/ais/consent \
+  -H "Content-Type: application/json" \
+  -d '{"expirationDateTime": null}'
 ```
 
 **Response:**
@@ -524,6 +538,12 @@ Common request defaults (applies to all three):
 - `redirectUri`: `https://backbase-dev.com/callback` (or `REDIRECT_URI` from env)
 
 ### AIS default payload sent upstream (`POST /api/uk/ais/consent`)
+
+When request body is `{}`, the simulator sends `ExpirationDateTime` as `now + 30 days`.
+
+**To omit `ExpirationDateTime` entirely** (field not sent to Salt Edge at all), pass `"expirationDateTime": null` in the request. The upstream payload will then contain only `Permissions` and `Risk` under `Data`—no `ExpirationDateTime` key.
+
+Default payload (when `{}` or when `expirationDateTime` is not provided):
 
 ```json
 {
