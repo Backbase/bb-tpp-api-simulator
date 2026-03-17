@@ -7,16 +7,19 @@ API simulator for UK Open Banking AIS (Account Information Services), PIS (Payme
 - [Setup](#setup)
 - [Docker](#docker)
 - [API Endpoints](#api-endpoints)
-  - [1. Health Check](#1-health-check)
-  - [2. API Documentation](#2-api-documentation)
-  - [3. Create AIS Consent](#3-create-ais-consent)
-  - [4. Get AIS Consent Details](#4-get-ais-consent-details)
-  - [5. Revoke AIS Consent](#5-revoke-ais-consent)
-  - [6. Create PIS Consent](#6-create-pis-consent)
-  - [7. Get PIS Consent Details](#7-get-pis-consent-details)
-  - [8. Create CBPII Consent](#8-create-cbpii-consent)
-  - [9. Get CBPII Consent Details](#9-get-cbpii-consent-details)
-  - [Default Consent Objects (Empty Request Body)](#default-consent-objects-empty-request-body)
+  - [Common Endpoints](#common-endpoints)
+    - [Health Check](#health-check)
+    - [API Documentation](#api-documentation)
+  - [UK Endpoints](#uk-endpoints)
+    - [Create AIS Consent](#create-ais-consent-uk)
+    - [Get AIS Consent Details](#get-ais-consent-details-uk)
+    - [Revoke AIS Consent](#revoke-ais-consent-uk)
+    - [Create PIS Consent](#create-pis-consent-uk)
+    - [Get PIS Consent Details](#get-pis-consent-details-uk)
+    - [Create CBPII Consent](#create-cbpii-consent-uk)
+    - [Get CBPII Consent Details](#get-cbpii-consent-details-uk)
+  - [BG Endpoints](#bg-endpoints)
+- [UK Default Consent Objects (Empty Request Body)](#uk-default-consent-objects-empty-request-body)
 - [Configuration (.env)](#configuration-env)
 
 ## Setup
@@ -77,7 +80,9 @@ Replace `{BASE_URL}` with the appropriate URL in all examples below.
 
 ---
 
-### 1. Health Check
+### Common Endpoints
+
+#### Health Check
 Check if the service is running.
 
 ```bash
@@ -96,7 +101,7 @@ curl {BASE_URL}/api/health
 
 ---
 
-### 2. API Documentation
+#### API Documentation
 Get list of all available endpoints.
 
 ```bash
@@ -105,7 +110,9 @@ curl {BASE_URL}/
 
 ---
 
-### 3. Create AIS Consent
+### UK Endpoints
+
+#### Create AIS Consent (UK)
 Create an Account Information Services consent and get the authorization URL.
 
 ```bash
@@ -164,7 +171,7 @@ curl -X POST {BASE_URL}/api/uk/ais/consent \
 
 ---
 
-### 4. Get AIS Consent Details
+#### Get AIS Consent Details (UK)
 Retrieve details of an existing AIS consent by ID.
 
 ```bash
@@ -203,7 +210,7 @@ curl "{BASE_URL}/api/uk/ais/consent/urn-backbase_dev_uk-intent-12345?providerCod
 
 ---
 
-### 5. Revoke AIS Consent
+#### Revoke AIS Consent (UK)
 Revoke/Delete an existing AIS consent by ID. This permanently removes the consent and prevents further use.
 
 ```bash
@@ -236,7 +243,7 @@ curl -X DELETE "{BASE_URL}/api/uk/ais/consent/urn-backbase_dev_uk-intent-12345?p
 
 ---
 
-### 6. Create PIS Consent
+#### Create PIS Consent (UK)
 Create a Payment Initiation Services consent and get the authorization URL.
 
 ```bash
@@ -395,7 +402,7 @@ curl -X POST {BASE_URL}/api/uk/pis/consent \
 
 ---
 
-### 7. Get PIS Consent Details
+#### Get PIS Consent Details (UK)
 Retrieve details of an existing PIS consent by ID.
 
 ```bash
@@ -447,7 +454,7 @@ curl "{BASE_URL}/api/uk/pis/consent/urn-backbase_dev_uk-intent-12345?providerCod
 
 ---
 
-### 8. Create CBPII Consent
+#### Create CBPII Consent (UK)
 Create a Confirmation of Funds (CBPII) consent and get the authorization URL.
 
 ```bash
@@ -492,7 +499,7 @@ curl -X POST {BASE_URL}/api/uk/cbpii/consent \
 
 ---
 
-### 9. Get CBPII Consent Details
+#### Get CBPII Consent Details (UK)
 Retrieve details of an existing CBPII consent by ID.
 
 ```bash
@@ -529,7 +536,20 @@ curl "{BASE_URL}/api/uk/cbpii/consent/urn-backbase_dev_uk-intent-12345?providerC
 
 ---
 
-## Default Consent Objects (Empty Request Body)
+### BG Endpoints
+
+Berlin Group-specific API endpoints are not exposed yet in the app-level API surface.
+
+Planned additions:
+- Berlin Group AIS endpoints
+- Berlin Group PIS endpoints
+- Other Berlin Group-specific TPP flows
+
+Implementation placeholder: `server/services/bg/README.md`
+
+---
+
+## UK Default Consent Objects (Empty Request Body)
 
 When caller sends `{}`, the simulator applies these defaults before calling Salt Edge.
 
