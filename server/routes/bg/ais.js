@@ -44,7 +44,18 @@ router.post('/consent', async (req, res, next) => {
       redirectUri
     });
 
-    res.status(201).json(data);
+    const consentId = data?.consentId;
+    if (!consentId) {
+      throw new Error('BG create consent response does not include consentId');
+    }
+
+    const showData = await getConsent(providerCode, consentId);
+    const authorizationUrl = showData?._links?.scaRedirect?.href || null;
+
+    res.status(201).json({
+      ...data,
+      authorizationUrl
+    });
   } catch (error) {
     next(error);
   }

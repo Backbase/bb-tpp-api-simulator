@@ -24,6 +24,7 @@ API simulator for UK Open Banking AIS (Account Information Services), PIS (Payme
     - [Status AIS Consent](#status-ais-consent-bg)
     - [Destroy AIS Consent](#destroy-ais-consent-bg)
 - [UK Default Consent Objects (Empty Request Body)](#uk-default-consent-objects-empty-request-body)
+- [BG Default Consent Object (Empty Request Body)](#bg-default-consent-object-empty-request-body)
 - [Configuration (.env)](#configuration-env)
 
 ## Setup
@@ -34,10 +35,14 @@ npm install
 
 # 2. Configure
 cp env.example .env
-# Edit .env: set OB_SOFTWARE_ID and OB_PRIVATE_KEY_PATH
+# Edit .env: set both UK and BG values as needed
 
-# 3. Add private key
-cp /path/to/your/key.pem ./private_key.pem
+# 3. Add key/certificate files (if you use file paths instead of inline PEM env vars)
+# UK key (for UK endpoints):
+cp /path/to/uk_client_private.key ./client_private.key
+# BG cert + key (for BG endpoints):
+cp /path/to/bg_client_signed_certifcate.crt ./client_signed_certifcate.crt
+cp /path/to/bg_client_private.key ./bg_client_private.key
 
 # 4. Start
 npm start
@@ -63,6 +68,15 @@ docker run -d \
   -e OB_SOFTWARE_ID=your-software-id \
   -e OB_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_KEY_CONTENT\n-----END PRIVATE KEY-----" \
   -e OB_PROVIDER_CODE=backbase_dev_uk \
+  -e BG_PROVIDER_CODE=backbase_dev_eu \
+  -e BG_BASE_PATH='/{provider_code}/api/berlingroup/v1' \
+  -e BG_REDIRECT_URI=https://backbase-dev.com/callback \
+  -e BG_CERT_PEM="-----BEGIN CERTIFICATE-----\nYOUR_BG_CERT\n-----END CERTIFICATE-----" \
+  -e BG_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_BG_KEY\n-----END PRIVATE KEY-----" \
+  -e BG_AIS_REDIRECT_PREFERRED=false \
+  -e BG_AIS_RECURRING_INDICATOR=true \
+  -e BG_AIS_FREQUENCY_PER_DAY=4 \
+  -e BG_AIS_VALID_UNTIL=2026-06-30 \
   -e PRIORA_URL=priora.saltedge.com \
   -e PROTOCOL=https \
   -e REDIRECT_URI=https://backbase-dev.com/callback \
@@ -72,6 +86,7 @@ docker run -d \
 ```
 
 **Note:** The `OB_PRIVATE_KEY` environment variable supports Azure Key Vault format (single-line with spaces) and will be automatically converted to proper PEM format.
+The same inline PEM approach also works for BG using `BG_CERT_PEM` and `BG_PRIVATE_KEY`.
 
 ## API Endpoints
 
@@ -557,7 +572,7 @@ For `Create`, the simulator also sends:
 - `TPP-Redirect-URI` (set from BG redirect URI)
 
 #### Create AIS Consent (BG)
-Create a Berlin Group AIS consent.
+Create a Berlin Group AIS consent. After create succeeds, the simulator calls BG `show` internally and returns `_links.scaRedirect.href` as `authorizationUrl`.
 
 ```bash
 curl -X POST {BASE_URL}/api/bg/ais/consent \
@@ -579,6 +594,28 @@ Required request body fields (BG Create):
 - `frequencyPerDay`
 - `validUntil`
 - `access`
+
+Default values when request body is `{}`:
+- `providerCode`: `backbase_dev_eu` (or `BG_PROVIDER_CODE` from env)
+- `redirectUri`: `https://backbase-dev.com/callback` (or `BG_REDIRECT_URI` / `REDIRECT_URI`)
+- `recurringIndicator`: `true` (or `BG_AIS_RECURRING_INDICATOR`)
+- `frequencyPerDay`: `4` (or `BG_AIS_FREQUENCY_PER_DAY`)
+- `validUntil`: `now + 90 days` (or `BG_AIS_VALID_UNTIL`)
+- `access`: `{ "balances": [], "transactions": [] }`
+- `redirectPreferred`: `false` (or `BG_AIS_REDIRECT_PREFERRED`)
+
+**Response:**
+```json
+{
+  "consentId": "372252",
+  "consentStatus": "accepted",
+  "_links": {
+    "status": { "href": "/backbase_dev_eu/api/berlingroup/v1/consents/372252/status" },
+    "scaStatus": { "href": "/backbase_dev_eu/api/berlingroup/v1/consents/372252/authorisations/548825" }
+  },
+  "authorizationUrl": "https://.../sca-redirect"
+}
+```
 
 #### Show AIS Consent (BG)
 Read consent content by consent ID.
@@ -688,6 +725,40 @@ Default payload (when `{}` or when `expirationDateTime` is not provided):
   }
 }
 ```
+
+---
+
+## BG Default Consent Object (Empty Request Body)
+
+When caller sends `{}` to `POST /api/bg/ais/consent`, the simulator applies these defaults:
+
+- `providerCode`: `backbase_dev_eu` (or `BG_PROVIDER_CODE` from env)
+- `redirectUri`: `https://backbase-dev.com/callback` (or `BG_REDIRECT_URI` / `REDIRECT_URI`)
+- `recurringIndicator`: `true` (or `BG_AIS_RECURRING_INDICATOR`)
+- `frequencyPerDay`: `4` (or `BG_AIS_FREQUENCY_PER_DAY`)
+- `validUntil`: `now + 90 days` (or `BG_AIS_VALID_UNTIL`)
+- `access`: `{ "balances": [], "transactions": [] }`
+- `redirectPreferred`: `false` (or `BG_AIS_REDIRECT_PREFERRED`)
+
+Default payload sent upstream:
+
+```json
+{
+  "recurringIndicator": true,
+  "frequencyPerDay": 4,
+  "validUntil": "<now + 90 days, YYYY-MM-DD>",
+  "access": {
+    "balances": [],
+    "transactions": []
+  }
+}
+```
+
+Create request headers sent upstream include:
+- `Content-Type: application/json`
+- `TPP-Redirect-Preferred: false` (or env override)
+- `TPP-Redirect-URI: https://backbase-dev.com/callback` (or env override)
+- `X-Request-ID`, `Digest`, `Date`, `TPP-Signature-Certificate`, `Signature`
 
 ---
 
