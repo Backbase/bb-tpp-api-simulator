@@ -65,7 +65,12 @@ export async function createConsent({
 export async function getConsent(providerCode, consentId) {
   const url = `${buildConsentBaseUrl(providerCode)}/${encodeURIComponent(consentId)}`;
   try {
-    const { data } = await axios.get(url, { headers: requiredHeaders('') });
+    const { data } = await axios.get(url, {
+      headers: {
+        ...requiredHeaders(''),
+        'Content-Type': 'application/json'
+      }
+    });
     return data;
   } catch (error) {
     throw new Error(toErrorMessage('Get BG AIS consent', error));
@@ -75,7 +80,12 @@ export async function getConsent(providerCode, consentId) {
 export async function getConsentStatus(providerCode, consentId) {
   const url = `${buildConsentBaseUrl(providerCode)}/${encodeURIComponent(consentId)}/status`;
   try {
-    const { data } = await axios.get(url, { headers: requiredHeaders('') });
+    const { data } = await axios.get(url, {
+      headers: {
+        ...requiredHeaders(''),
+        'Content-Type': 'application/json'
+      }
+    });
     return data;
   } catch (error) {
     throw new Error(toErrorMessage('Get BG AIS consent status', error));
@@ -85,7 +95,12 @@ export async function getConsentStatus(providerCode, consentId) {
 export async function deleteConsent(providerCode, consentId) {
   const url = `${buildConsentBaseUrl(providerCode)}/${encodeURIComponent(consentId)}`;
   try {
-    await axios.delete(url, { headers: requiredHeaders('') });
+    await axios.delete(url, {
+      headers: {
+        ...requiredHeaders(''),
+        'Content-Type': 'application/json'
+      }
+    });
     return true;
   } catch (error) {
     throw new Error(toErrorMessage('Delete BG AIS consent', error));

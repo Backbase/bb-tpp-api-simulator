@@ -3,6 +3,10 @@
  */
 
 import crypto, { X509Certificate } from 'crypto';
+import { execFileSync } from 'child_process';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 export function createRequestId() {
   return crypto.randomUUID();
@@ -19,7 +23,30 @@ export function buildDigest(body = '') {
 function getKeyId(certPem) {
   if (process.env.BG_KEY_ID) return process.env.BG_KEY_ID;
   const cert = new X509Certificate(certPem);
-  const issuerDn = cert.issuer.replace(/\n/g, ',');
+
+  // Match keyId issuer formatting used during successful TPP registration:
+  // OpenSSL RFC2253 output order (e.g. ST=...,C=...,O=...,CN=...).
+  let issuerDn;
+  const tempPath = path.join(os.tmpdir(), `bg-cert-${crypto.randomUUID()}.crt`);
+  try {
+    fs.writeFileSync(tempPath, certPem, 'utf8');
+    const issuerOutput = execFileSync(
+      'openssl',
+      ['x509', '-in', tempPath, '-noout', '-issuer', '-nameopt', 'RFC2253'],
+      { encoding: 'utf8' }
+    ).trim();
+    issuerDn = issuerOutput.replace(/^issuer=/, '');
+  } catch {
+    // Fallback to Node issuer format if OpenSSL is unavailable.
+    issuerDn = cert.issuer.replace(/\n/g, ',');
+  } finally {
+    try {
+      fs.unlinkSync(tempPath);
+    } catch {
+      // no-op
+    }
+  }
+
   return `SN=${cert.serialNumber},DN=${issuerDn}`;
 }
 
@@ -39,9 +66,9 @@ export function buildRequiredSignedHeaders({ privateKeyPem, certPem, body = '', 
   const date = createDateHeader();
   const digest = buildDigest(body);
   const baseHeaders = {
+    'x-request-id': requestId,
     digest,
-    date,
-    'x-request-id': requestId
+    date
   };
   const normalizedAdditionalHeaders = Object.entries(additionalSignedHeaders).reduce((acc, [key, value]) => {
     acc[key.toLowerCase()] = String(value);

@@ -40,7 +40,7 @@ export function getBgProviderCode() {
 }
 
 export function getBgBasePath(providerCode) {
-  const baseTemplate = process.env.BG_BASE_PATH || '/api/{provider_code}/api/berlingroup/v1';
+  const baseTemplate = process.env.BG_BASE_PATH || '/{provider_code}/api/berlingroup/v1';
   return baseTemplate.replace('{provider_code}', encodeURIComponent(providerCode));
 }
 
@@ -60,7 +60,7 @@ export function getBgPrivateKey() {
   return readConfiguredFile(
     'BG_PRIVATE_KEY_PATH',
     'BG_PRIVATE_KEY',
-    './client_private.key'
+    './bg_client_private.key'
   );
 }
 

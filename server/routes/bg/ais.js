@@ -44,7 +44,7 @@ router.post('/consent', async (req, res, next) => {
       redirectUri
     });
 
-    res.json(data);
+    res.status(201).json(data);
   } catch (error) {
     next(error);
   }
