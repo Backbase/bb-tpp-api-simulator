@@ -19,6 +19,10 @@ API simulator for UK Open Banking AIS (Account Information Services), PIS (Payme
     - [Create CBPII Consent](#create-cbpii-consent-uk)
     - [Get CBPII Consent Details](#get-cbpii-consent-details-uk)
   - [BG Endpoints](#bg-endpoints)
+    - [Create AIS Consent](#create-ais-consent-bg)
+    - [Show AIS Consent](#show-ais-consent-bg)
+    - [Status AIS Consent](#status-ais-consent-bg)
+    - [Destroy AIS Consent](#destroy-ais-consent-bg)
 - [UK Default Consent Objects (Empty Request Body)](#uk-default-consent-objects-empty-request-body)
 - [Configuration (.env)](#configuration-env)
 
@@ -538,14 +542,64 @@ curl "{BASE_URL}/api/uk/cbpii/consent/urn-backbase_dev_uk-intent-12345?providerC
 
 ### BG Endpoints
 
-Berlin Group-specific API endpoints are not exposed yet in the app-level API surface.
+Berlin Group AIS consent endpoints are available at `/api/bg/ais/*`.
 
-Planned additions:
-- Berlin Group AIS endpoints
-- Berlin Group PIS endpoints
-- Other Berlin Group-specific TPP flows
+Required headers sent upstream for all BG AIS consent calls:
+- `X-Request-ID`
+- `Digest`
+- `Date`
+- `TPP-Signature-Certificate`
+- `Signature`
 
-Implementation placeholder: `server/services/bg/README.md`
+For `Create`, the simulator also sends:
+- `Content-Type: application/json`
+- `TPP-Redirect-Preferred` (required by BG Create)
+- `TPP-Redirect-URI` (set from BG redirect URI)
+
+#### Create AIS Consent (BG)
+Create a Berlin Group AIS consent.
+
+```bash
+curl -X POST {BASE_URL}/api/bg/ais/consent \
+  -H "Content-Type: application/json" \
+  -d '{
+    "providerCode": "backbase_dev_eu",
+    "recurringIndicator": true,
+    "frequencyPerDay": 4,
+    "validUntil": "2026-06-30",
+    "access": {
+      "balances": [],
+      "transactions": []
+    }
+  }'
+```
+
+Required request body fields (BG Create):
+- `recurringIndicator`
+- `frequencyPerDay`
+- `validUntil`
+- `access`
+
+#### Show AIS Consent (BG)
+Read consent content by consent ID.
+
+```bash
+curl "{BASE_URL}/api/bg/ais/consent/{CONSENT_ID}?providerCode=backbase_dev_eu"
+```
+
+#### Status AIS Consent (BG)
+Read consent status by consent ID.
+
+```bash
+curl "{BASE_URL}/api/bg/ais/consent/{CONSENT_ID}/status?providerCode=backbase_dev_eu"
+```
+
+#### Destroy AIS Consent (BG)
+Delete consent by consent ID.
+
+```bash
+curl -X DELETE "{BASE_URL}/api/bg/ais/consent/{CONSENT_ID}?providerCode=backbase_dev_eu"
+```
 
 ---
 
@@ -648,5 +702,17 @@ OB_PRIVATE_KEY_PATH=./private_key.pem
 OB_PROVIDER_CODE=backbase_dev_uk
 REDIRECT_URI=https://backbase-dev.com/callback
 PRIORA_URL=priora.saltedge.com
+
+# Berlin Group (BG)
+BG_PROVIDER_CODE=backbase_dev_eu
+BG_BASE_PATH=/api/{provider_code}/api/berlingroup/v1
+BG_REDIRECT_URI=https://backbase-dev.com/callback
+BG_CERT_FILE_PATH=./client_signed_certifcate.crt
+BG_PRIVATE_KEY_PATH=./client_private.key
+BG_AIS_REDIRECT_PREFERRED=false
+BG_AIS_RECURRING_INDICATOR=true
+BG_AIS_FREQUENCY_PER_DAY=4
+BG_AIS_VALID_UNTIL=2026-06-30
+
 PORT=8080
 ```
