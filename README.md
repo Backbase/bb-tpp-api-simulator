@@ -23,6 +23,10 @@ API simulator for UK Open Banking AIS (Account Information Services), PIS (Payme
     - [Show AIS Consent](#show-ais-consent-bg)
     - [Status AIS Consent](#status-ais-consent-bg)
     - [Destroy AIS Consent](#destroy-ais-consent-bg)
+    - [Accounts List](#accounts-list-bg)
+    - [Single Account](#single-account-bg)
+    - [Transactions List](#transactions-list-bg)
+    - [Account Balance](#account-balance-bg)
 - [UK Default Consent Objects (Empty Request Body)](#uk-default-consent-objects-empty-request-body)
 - [BG Default Consent Object (Empty Request Body)](#bg-default-consent-object-empty-request-body)
 - [Configuration (.env)](#configuration-env)
@@ -552,7 +556,7 @@ curl "{BASE_URL}/api/uk/cbpii/consent/urn-backbase_dev_uk-intent-12345?providerC
 
 ### BG Endpoints
 
-Berlin Group AIS consent endpoints are available at `/api/bg/ais/*`.
+Berlin Group AIS consent and account-data endpoints are available at `/api/bg/ais/*`.
 
 Required headers sent upstream for all BG AIS consent calls:
 - `X-Request-ID`
@@ -565,6 +569,13 @@ For `Create`, the simulator also sends:
 - `Content-Type: application/json`
 - `TPP-Redirect-Preferred` (required by BG Create)
 - `TPP-Redirect-URI` (set from BG redirect URI)
+
+For BG account-data endpoints, the simulator also sends:
+- `Content-Type: application/json`
+- `Consent-Id` (required by Salt Edge for account-data reads)
+- `PSU-Device-ID` (optional passthrough)
+- `Psu-IP-Address` (optional passthrough)
+- `PSU-Device-Name` (optional passthrough)
 
 #### Create AIS Consent (BG)
 Create a Berlin Group AIS consent. After create succeeds, the simulator calls BG `show` internally and returns `_links.scaRedirect.href` as `authorizationUrl`.
@@ -632,6 +643,56 @@ Delete consent by consent ID.
 ```bash
 curl -X DELETE "{BASE_URL}/api/bg/ais/consent/{CONSENT_ID}?providerCode=backbase_dev_eu"
 ```
+
+#### Accounts List (BG)
+List accessible accounts for the consent.
+
+```bash
+curl "{BASE_URL}/api/bg/ais/accounts?providerCode=backbase_dev_eu&consentId={CONSENT_ID}" \
+  -H "PSU-Device-ID: psu-device-123" \
+  -H "Psu-IP-Address: 203.0.113.10" \
+  -H "PSU-Device-Name: iPhone-15"
+```
+
+Query parameters:
+- `providerCode` (optional, default `backbase_dev_eu`)
+- `consentId` (required unless provided as `Consent-Id` header)
+- `withBalance` is intentionally ignored for this endpoint (Postman includes it, Salt Edge BG does not support it here).
+
+#### Single Account (BG)
+Read details for a single account by account ID.
+
+```bash
+curl "{BASE_URL}/api/bg/ais/accounts/{ACCOUNT_ID}?providerCode=backbase_dev_eu&consentId={CONSENT_ID}&withBalance=true"
+```
+
+Query parameters:
+- `providerCode` (optional, default `backbase_dev_eu`)
+- `consentId` (required unless provided as `Consent-Id` header)
+- `withBalance` (optional passthrough)
+
+#### Transactions List (BG)
+Read transactions for one account.
+
+```bash
+curl "{BASE_URL}/api/bg/ais/accounts/{ACCOUNT_ID}/transactions?providerCode=backbase_dev_eu&consentId={CONSENT_ID}&bookingStatus=both"
+```
+
+Query parameters:
+- `providerCode` (optional, default `backbase_dev_eu`)
+- `consentId` (required unless provided as `Consent-Id` header)
+- `bookingStatus` (optional passthrough, for example `both`)
+
+#### Account Balance (BG)
+Read balances for one account.
+
+```bash
+curl "{BASE_URL}/api/bg/ais/accounts/{ACCOUNT_ID}/balances?providerCode=backbase_dev_eu&consentId={CONSENT_ID}"
+```
+
+Query parameters:
+- `providerCode` (optional, default `backbase_dev_eu`)
+- `consentId` (required unless provided as `Consent-Id` header)
 
 ---
 

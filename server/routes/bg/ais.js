@@ -7,7 +7,11 @@ import {
   createConsent,
   getConsent,
   getConsentStatus,
-  deleteConsent
+  deleteConsent,
+  listAccounts,
+  getSingleAccount,
+  getAccountTransactions,
+  getAccountBalances
 } from '../../services/bg/ais-service.js';
 import {
   getBgProviderCode,
@@ -19,6 +23,22 @@ const router = express.Router();
 
 function defaultAccess() {
   return { balances: [], transactions: [] };
+}
+
+function extractDataRequestOptions(req) {
+  const consentId = req.query.consentId || req.headers['consent-id'];
+  const psuDeviceId = req.headers['psu-device-id'];
+  const psuIpAddress = req.headers['psu-ip-address'];
+  const psuDeviceName = req.headers['psu-device-name'];
+  return { consentId, psuDeviceId, psuIpAddress, psuDeviceName };
+}
+
+function ensureConsentId(consentId) {
+  if (!consentId) {
+    const error = new Error('Missing consentId. Provide it as query param `consentId` or header `Consent-Id`.');
+    error.status = 400;
+    throw error;
+  }
 }
 
 router.post('/consent', async (req, res, next) => {
@@ -89,6 +109,63 @@ router.delete('/consent/:consentId', async (req, res, next) => {
     const { providerCode = getBgProviderCode() } = req.query;
     await deleteConsent(providerCode, consentId);
     res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/accounts', async (req, res, next) => {
+  try {
+    const { providerCode = getBgProviderCode() } = req.query;
+    const options = extractDataRequestOptions(req);
+    ensureConsentId(options.consentId);
+    const data = await listAccounts(providerCode, options);
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/accounts/:accountId', async (req, res, next) => {
+  try {
+    const { providerCode = getBgProviderCode(), withBalance } = req.query;
+    const { accountId } = req.params;
+    const options = {
+      ...extractDataRequestOptions(req),
+      withBalance
+    };
+    ensureConsentId(options.consentId);
+    const data = await getSingleAccount(providerCode, accountId, options);
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/accounts/:accountId/transactions', async (req, res, next) => {
+  try {
+    const { providerCode = getBgProviderCode(), bookingStatus } = req.query;
+    const { accountId } = req.params;
+    const options = {
+      ...extractDataRequestOptions(req),
+      bookingStatus
+    };
+    ensureConsentId(options.consentId);
+    const data = await getAccountTransactions(providerCode, accountId, options);
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/accounts/:accountId/balances', async (req, res, next) => {
+  try {
+    const { providerCode = getBgProviderCode() } = req.query;
+    const { accountId } = req.params;
+    const options = extractDataRequestOptions(req);
+    ensureConsentId(options.consentId);
+    const data = await getAccountBalances(providerCode, accountId, options);
+    res.json(data);
   } catch (error) {
     next(error);
   }

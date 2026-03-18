@@ -17,6 +17,12 @@ function buildConsentBaseUrl(providerCode) {
   return `${baseUrl}${basePath}/consents`;
 }
 
+function buildAccountsBaseUrl(providerCode) {
+  const baseUrl = getBgBaseUrl();
+  const basePath = getBgBasePath(providerCode);
+  return `${baseUrl}${basePath}/accounts`;
+}
+
 function toErrorMessage(action, error) {
   const details = error.response?.data
     ? JSON.stringify(error.response.data)
@@ -28,6 +34,31 @@ function requiredHeaders(body = '', additionalSignedHeaders = {}) {
   const certPem = getBgCertPem();
   const privateKeyPem = getBgPrivateKey();
   return buildRequiredSignedHeaders({ privateKeyPem, certPem, body, additionalSignedHeaders });
+}
+
+function buildBgAisDataHeaders({ consentId, psuDeviceId, psuIpAddress, psuDeviceName }) {
+  const headers = {
+    ...requiredHeaders(''),
+    'Content-Type': 'application/json',
+    'Consent-Id': consentId
+  };
+
+  if (psuDeviceId) headers['PSU-Device-ID'] = psuDeviceId;
+  if (psuIpAddress) headers['Psu-IP-Address'] = psuIpAddress;
+  if (psuDeviceName) headers['PSU-Device-Name'] = psuDeviceName;
+
+  return headers;
+}
+
+function addOptionalQueryParams(url, queryParams = {}) {
+  const searchParams = new URLSearchParams();
+  Object.entries(queryParams).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      searchParams.set(key, String(value));
+    }
+  });
+  const queryString = searchParams.toString();
+  return queryString ? `${url}?${queryString}` : url;
 }
 
 export async function createConsent({
@@ -104,6 +135,80 @@ export async function deleteConsent(providerCode, consentId) {
     return true;
   } catch (error) {
     throw new Error(toErrorMessage('Delete BG AIS consent', error));
+  }
+}
+
+export async function listAccounts(providerCode, options = {}) {
+  const { consentId, psuDeviceId, psuIpAddress, psuDeviceName } = options;
+  const url = buildAccountsBaseUrl(providerCode);
+  try {
+    const { data } = await axios.get(url, {
+      headers: buildBgAisDataHeaders({
+        consentId,
+        psuDeviceId,
+        psuIpAddress,
+        psuDeviceName
+      })
+    });
+    return data;
+  } catch (error) {
+    throw new Error(toErrorMessage('List BG AIS accounts', error));
+  }
+}
+
+export async function getSingleAccount(providerCode, accountId, options = {}) {
+  const { consentId, psuDeviceId, psuIpAddress, psuDeviceName, withBalance } = options;
+  const baseUrl = `${buildAccountsBaseUrl(providerCode)}/${encodeURIComponent(accountId)}`;
+  const url = addOptionalQueryParams(baseUrl, { withBalance });
+  try {
+    const { data } = await axios.get(url, {
+      headers: buildBgAisDataHeaders({
+        consentId,
+        psuDeviceId,
+        psuIpAddress,
+        psuDeviceName
+      })
+    });
+    return data;
+  } catch (error) {
+    throw new Error(toErrorMessage('Get BG AIS single account', error));
+  }
+}
+
+export async function getAccountTransactions(providerCode, accountId, options = {}) {
+  const { consentId, psuDeviceId, psuIpAddress, psuDeviceName, bookingStatus } = options;
+  const baseUrl = `${buildAccountsBaseUrl(providerCode)}/${encodeURIComponent(accountId)}/transactions`;
+  const url = addOptionalQueryParams(baseUrl, { bookingStatus });
+  try {
+    const { data } = await axios.get(url, {
+      headers: buildBgAisDataHeaders({
+        consentId,
+        psuDeviceId,
+        psuIpAddress,
+        psuDeviceName
+      })
+    });
+    return data;
+  } catch (error) {
+    throw new Error(toErrorMessage('Get BG AIS account transactions', error));
+  }
+}
+
+export async function getAccountBalances(providerCode, accountId, options = {}) {
+  const { consentId, psuDeviceId, psuIpAddress, psuDeviceName } = options;
+  const url = `${buildAccountsBaseUrl(providerCode)}/${encodeURIComponent(accountId)}/balances`;
+  try {
+    const { data } = await axios.get(url, {
+      headers: buildBgAisDataHeaders({
+        consentId,
+        psuDeviceId,
+        psuIpAddress,
+        psuDeviceName
+      })
+    });
+    return data;
+  } catch (error) {
+    throw new Error(toErrorMessage('Get BG AIS account balances', error));
   }
 }
 
