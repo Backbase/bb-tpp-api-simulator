@@ -14,6 +14,7 @@ yarn-error.log*
 *.key
 client_private.key
 private_key.pem
+*.crt
 
 # Git
 .git/
