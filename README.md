@@ -69,14 +69,9 @@ docker run -d \
   -e OB_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_KEY_CONTENT\n-----END PRIVATE KEY-----" \
   -e OB_PROVIDER_CODE=backbase_dev_uk \
   -e BG_PROVIDER_CODE=backbase_dev_eu \
-  -e BG_BASE_PATH='/{provider_code}/api/berlingroup/v1' \
   -e BG_REDIRECT_URI=https://backbase-dev.com/callback \
   -e BG_CERT_PEM="-----BEGIN CERTIFICATE-----\nYOUR_BG_CERT\n-----END CERTIFICATE-----" \
   -e BG_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_BG_KEY\n-----END PRIVATE KEY-----" \
-  -e BG_AIS_REDIRECT_PREFERRED=false \
-  -e BG_AIS_RECURRING_INDICATOR=true \
-  -e BG_AIS_FREQUENCY_PER_DAY=4 \
-  -e BG_AIS_VALID_UNTIL=2026-06-30 \
   -e PRIORA_URL=priora.saltedge.com \
   -e PROTOCOL=https \
   -e REDIRECT_URI=https://backbase-dev.com/callback \
@@ -598,11 +593,11 @@ Required request body fields (BG Create):
 Default values when request body is `{}`:
 - `providerCode`: `backbase_dev_eu` (or `BG_PROVIDER_CODE` from env)
 - `redirectUri`: `https://backbase-dev.com/callback` (or `BG_REDIRECT_URI` / `REDIRECT_URI`)
-- `recurringIndicator`: `true` (or `BG_AIS_RECURRING_INDICATOR`)
-- `frequencyPerDay`: `4` (or `BG_AIS_FREQUENCY_PER_DAY`)
-- `validUntil`: `now + 90 days` (or `BG_AIS_VALID_UNTIL`)
+- `recurringIndicator`: `true` (hardcoded default)
+- `frequencyPerDay`: `4` (hardcoded default)
+- `validUntil`: `now + 90 days` (hardcoded default)
 - `access`: `{ "balances": [], "transactions": [] }`
-- `redirectPreferred`: `false` (or `BG_AIS_REDIRECT_PREFERRED`)
+- `redirectPreferred`: `false` (hardcoded default)
 
 **Response:**
 ```json
@@ -734,11 +729,11 @@ When caller sends `{}` to `POST /api/bg/ais/consent`, the simulator applies thes
 
 - `providerCode`: `backbase_dev_eu` (or `BG_PROVIDER_CODE` from env)
 - `redirectUri`: `https://backbase-dev.com/callback` (or `BG_REDIRECT_URI` / `REDIRECT_URI`)
-- `recurringIndicator`: `true` (or `BG_AIS_RECURRING_INDICATOR`)
-- `frequencyPerDay`: `4` (or `BG_AIS_FREQUENCY_PER_DAY`)
-- `validUntil`: `now + 90 days` (or `BG_AIS_VALID_UNTIL`)
+- `recurringIndicator`: `true` (hardcoded default)
+- `frequencyPerDay`: `4` (hardcoded default)
+- `validUntil`: `now + 90 days` (hardcoded default)
 - `access`: `{ "balances": [], "transactions": [] }`
-- `redirectPreferred`: `false` (or `BG_AIS_REDIRECT_PREFERRED`)
+- `redirectPreferred`: `false` (hardcoded default)
 
 Default payload sent upstream:
 
@@ -776,14 +771,9 @@ PRIORA_URL=priora.saltedge.com
 
 # Berlin Group (BG)
 BG_PROVIDER_CODE=backbase_dev_eu
-BG_BASE_PATH=/{provider_code}/api/berlingroup/v1
 BG_REDIRECT_URI=https://backbase-dev.com/callback
 BG_CERT_FILE_PATH=./client_signed_certifcate.crt
 BG_PRIVATE_KEY_PATH=./bg_client_private.key
-BG_AIS_REDIRECT_PREFERRED=false
-BG_AIS_RECURRING_INDICATOR=true
-BG_AIS_FREQUENCY_PER_DAY=4
-BG_AIS_VALID_UNTIL=2026-06-30
 
 PORT=8080
 ```

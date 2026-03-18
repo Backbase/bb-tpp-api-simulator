@@ -40,7 +40,7 @@ export function getBgProviderCode() {
 }
 
 export function getBgBasePath(providerCode) {
-  const baseTemplate = process.env.BG_BASE_PATH || '/{provider_code}/api/berlingroup/v1';
+  const baseTemplate = '/{provider_code}/api/berlingroup/v1';
   return baseTemplate.replace('{provider_code}', encodeURIComponent(providerCode));
 }
 
@@ -65,15 +65,12 @@ export function getBgPrivateKey() {
 }
 
 export function getBgCreateDefaults() {
-  const validUntilDefault = process.env.BG_AIS_VALID_UNTIL || new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
-  const frequency = Number.parseInt(process.env.BG_AIS_FREQUENCY_PER_DAY || '4', 10);
-  const recurring = (process.env.BG_AIS_RECURRING_INDICATOR || 'true').toLowerCase() === 'true';
-  const redirectPreferred = (process.env.BG_AIS_REDIRECT_PREFERRED || 'false').toLowerCase() === 'true';
+  const validUntilDefault = new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
   return {
     validUntil: validUntilDefault,
-    frequencyPerDay: Number.isNaN(frequency) ? 4 : frequency,
-    recurringIndicator: recurring,
-    redirectPreferred
+    frequencyPerDay: 4,
+    recurringIndicator: true,
+    redirectPreferred: false
   };
 }
 
