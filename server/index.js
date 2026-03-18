@@ -133,6 +133,30 @@ app.get('/', (req, res) => {
         path: '/api/bg/ais/consent/:consentId',
         description: 'Delete Berlin Group AIS consent by consent ID',
         example: 'curl -X DELETE "http://localhost:8080/api/bg/ais/consent/CONSENT_ID"'
+      },
+      listBGAISAccounts: {
+        method: 'GET',
+        path: '/api/bg/ais/accounts',
+        description: 'List Berlin Group AIS accounts (requires Consent-Id)',
+        example: 'curl "http://localhost:8080/api/bg/ais/accounts?consentId=CONSENT_ID"'
+      },
+      getBGAISSingleAccount: {
+        method: 'GET',
+        path: '/api/bg/ais/accounts/:accountId',
+        description: 'Get a single Berlin Group AIS account by account ID (requires Consent-Id)',
+        example: 'curl "http://localhost:8080/api/bg/ais/accounts/ACCOUNT_ID?consentId=CONSENT_ID&withBalance=true"'
+      },
+      getBGAISAccountTransactions: {
+        method: 'GET',
+        path: '/api/bg/ais/accounts/:accountId/transactions',
+        description: 'Get Berlin Group AIS account transactions (requires Consent-Id)',
+        example: 'curl "http://localhost:8080/api/bg/ais/accounts/ACCOUNT_ID/transactions?consentId=CONSENT_ID&bookingStatus=both"'
+      },
+      getBGAISAccountBalances: {
+        method: 'GET',
+        path: '/api/bg/ais/accounts/:accountId/balances',
+        description: 'Get Berlin Group AIS account balances (requires Consent-Id)',
+        example: 'curl "http://localhost:8080/api/bg/ais/accounts/ACCOUNT_ID/balances?consentId=CONSENT_ID"'
       }
     },
     documentation: 'See README.md for detailed examples and workflow'
