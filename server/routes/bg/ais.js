@@ -20,6 +20,8 @@ import {
 } from '../../services/bg/shared/config.js';
 
 const router = express.Router();
+const BG_AUTHORIZATION_URL_MAX_ATTEMPTS = 10;
+const BG_AUTHORIZATION_URL_RETRY_DELAY_MS = 1500;
 
 function defaultAccess() {
   return { balances: [], transactions: [] };
@@ -39,6 +41,44 @@ function ensureConsentId(consentId) {
     error.status = 400;
     throw error;
   }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function resolveAuthorizationUrl(providerCode, consentId) {
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= BG_AUTHORIZATION_URL_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      const showData = await getConsent(providerCode, consentId);
+      const authorizationUrl = showData?._links?.scaRedirect?.href;
+      if (authorizationUrl) return authorizationUrl;
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (attempt < BG_AUTHORIZATION_URL_MAX_ATTEMPTS) {
+      await sleep(BG_AUTHORIZATION_URL_RETRY_DELAY_MS);
+    }
+  }
+
+  if (lastError) {
+    const error = new Error(
+      `BG authorizationUrl not available after ${BG_AUTHORIZATION_URL_MAX_ATTEMPTS} attempts: ${lastError.message}`
+    );
+    error.status = 504;
+    throw error;
+  }
+
+  const error = new Error(
+    `BG authorizationUrl not available after ${BG_AUTHORIZATION_URL_MAX_ATTEMPTS} attempts`
+  );
+  error.status = 504;
+  throw error;
 }
 
 router.post('/consent', async (req, res, next) => {
@@ -69,8 +109,7 @@ router.post('/consent', async (req, res, next) => {
       throw new Error('BG create consent response does not include consentId');
     }
 
-    const showData = await getConsent(providerCode, consentId);
-    const authorizationUrl = showData?._links?.scaRedirect?.href || null;
+    const authorizationUrl = await resolveAuthorizationUrl(providerCode, consentId);
 
     res.status(201).json({
       ...data,
