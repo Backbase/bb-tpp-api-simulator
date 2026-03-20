@@ -11,22 +11,28 @@ API simulator for UK Open Banking AIS (Account Information Services), PIS (Payme
     - [Health Check](#health-check)
     - [API Documentation](#api-documentation)
   - [UK Endpoints](#uk-endpoints)
-    - [Create AIS Consent](#create-ais-consent-uk)
-    - [Get AIS Consent Details](#get-ais-consent-details-uk)
-    - [Revoke AIS Consent](#revoke-ais-consent-uk)
-    - [Create PIS Consent](#create-pis-consent-uk)
-    - [Get PIS Consent Details](#get-pis-consent-details-uk)
-    - [Create CBPII Consent](#create-cbpii-consent-uk)
-    - [Get CBPII Consent Details](#get-cbpii-consent-details-uk)
+    - [AIS (UK)](#ais-uk)
+      - [Create AIS Consent](#create-ais-consent-uk)
+      - [Get AIS Consent Details](#get-ais-consent-details-uk)
+      - [Revoke AIS Consent](#revoke-ais-consent-uk)
+    - [PIS (UK)](#pis-uk)
+      - [Create PIS Consent](#create-pis-consent-uk)
+      - [Get PIS Consent Details](#get-pis-consent-details-uk)
+    - [CBPII/COF (UK)](#cbpiicof-uk)
+      - [Create CBPII Consent](#create-cbpii-consent-uk)
+      - [Get CBPII Consent Details](#get-cbpii-consent-details-uk)
   - [BG Endpoints](#bg-endpoints)
-    - [Create AIS Consent](#create-ais-consent-bg)
-    - [Show AIS Consent](#show-ais-consent-bg)
-    - [Status AIS Consent](#status-ais-consent-bg)
-    - [Destroy AIS Consent](#destroy-ais-consent-bg)
-    - [Accounts List](#accounts-list-bg)
-    - [Single Account](#single-account-bg)
-    - [Transactions List](#transactions-list-bg)
-    - [Account Balance](#account-balance-bg)
+    - [AIS (BG)](#ais-bg)
+      - [Create AIS Consent](#create-ais-consent-bg)
+      - [Show AIS Consent](#show-ais-consent-bg)
+      - [Status AIS Consent](#status-ais-consent-bg)
+      - [Destroy AIS Consent](#destroy-ais-consent-bg)
+      - [Accounts List](#accounts-list-bg)
+      - [Single Account](#single-account-bg)
+      - [Transactions List](#transactions-list-bg)
+      - [Account Balance](#account-balance-bg)
+    - [PIS (BG)](#pis-bg)
+    - [CBPII/COF (BG)](#cbpiicof-bg)
 - [UK Default Consent Objects (Empty Request Body)](#uk-default-consent-objects-empty-request-body)
 - [BG Default Consent Object (Empty Request Body)](#bg-default-consent-object-empty-request-body)
 - [Configuration (.env)](#configuration-env)
@@ -130,7 +136,9 @@ curl {BASE_URL}/
 
 ### UK Endpoints
 
-#### Create AIS Consent (UK)
+#### AIS (UK)
+
+##### Create AIS Consent (UK)
 Create an Account Information Services consent and get the authorization URL.
 
 ```bash
@@ -189,7 +197,7 @@ curl -X POST {BASE_URL}/api/uk/ais/consent \
 
 ---
 
-#### Get AIS Consent Details (UK)
+##### Get AIS Consent Details (UK)
 Retrieve details of an existing AIS consent by ID.
 
 ```bash
@@ -228,7 +236,7 @@ curl "{BASE_URL}/api/uk/ais/consent/urn-backbase_dev_uk-intent-12345?providerCod
 
 ---
 
-#### Revoke AIS Consent (UK)
+##### Revoke AIS Consent (UK)
 Revoke/Delete an existing AIS consent by ID. This permanently removes the consent and prevents further use.
 
 ```bash
@@ -261,7 +269,9 @@ curl -X DELETE "{BASE_URL}/api/uk/ais/consent/urn-backbase_dev_uk-intent-12345?p
 
 ---
 
-#### Create PIS Consent (UK)
+#### PIS (UK)
+
+##### Create PIS Consent (UK)
 Create a Payment Initiation Services consent and get the authorization URL.
 
 ```bash
@@ -420,7 +430,7 @@ curl -X POST {BASE_URL}/api/uk/pis/consent \
 
 ---
 
-#### Get PIS Consent Details (UK)
+##### Get PIS Consent Details (UK)
 Retrieve details of an existing PIS consent by ID.
 
 ```bash
@@ -472,7 +482,9 @@ curl "{BASE_URL}/api/uk/pis/consent/urn-backbase_dev_uk-intent-12345?providerCod
 
 ---
 
-#### Create CBPII Consent (UK)
+#### CBPII/COF (UK)
+
+##### Create CBPII Consent (UK)
 Create a Confirmation of Funds (CBPII) consent and get the authorization URL.
 
 ```bash
@@ -517,7 +529,7 @@ curl -X POST {BASE_URL}/api/uk/cbpii/consent \
 
 ---
 
-#### Get CBPII Consent Details (UK)
+##### Get CBPII Consent Details (UK)
 Retrieve details of an existing CBPII consent by ID.
 
 ```bash
@@ -577,7 +589,9 @@ For BG account-data endpoints, the simulator also sends:
 - `Psu-IP-Address` (optional passthrough)
 - `PSU-Device-Name` (optional passthrough)
 
-#### Create AIS Consent (BG)
+#### AIS (BG)
+
+##### Create AIS Consent (BG)
 Create a Berlin Group AIS consent. After create succeeds, the simulator calls BG `show` internally and returns `_links.scaRedirect.href` as `authorizationUrl`.
 
 ```bash
@@ -623,28 +637,28 @@ Default values when request body is `{}`:
 }
 ```
 
-#### Show AIS Consent (BG)
+##### Show AIS Consent (BG)
 Read consent content by consent ID.
 
 ```bash
 curl "{BASE_URL}/api/bg/ais/consent/{CONSENT_ID}?providerCode=backbase_dev_eu"
 ```
 
-#### Status AIS Consent (BG)
+##### Status AIS Consent (BG)
 Read consent status by consent ID.
 
 ```bash
 curl "{BASE_URL}/api/bg/ais/consent/{CONSENT_ID}/status?providerCode=backbase_dev_eu"
 ```
 
-#### Destroy AIS Consent (BG)
+##### Destroy AIS Consent (BG)
 Delete consent by consent ID.
 
 ```bash
 curl -X DELETE "{BASE_URL}/api/bg/ais/consent/{CONSENT_ID}?providerCode=backbase_dev_eu"
 ```
 
-#### Accounts List (BG)
+##### Accounts List (BG)
 List accessible accounts for the consent.
 
 ```bash
@@ -659,7 +673,7 @@ Query parameters:
 - `consentId` (required unless provided as `Consent-Id` header)
 - `withBalance` is intentionally ignored for this endpoint (Postman includes it, Salt Edge BG does not support it here).
 
-#### Single Account (BG)
+##### Single Account (BG)
 Read details for a single account by account ID.
 
 ```bash
@@ -671,7 +685,7 @@ Query parameters:
 - `consentId` (required unless provided as `Consent-Id` header)
 - `withBalance` (optional passthrough)
 
-#### Transactions List (BG)
+##### Transactions List (BG)
 Read transactions for one account.
 
 ```bash
@@ -683,7 +697,7 @@ Query parameters:
 - `consentId` (required unless provided as `Consent-Id` header)
 - `bookingStatus` (optional passthrough, for example `both`)
 
-#### Account Balance (BG)
+##### Account Balance (BG)
 Read balances for one account.
 
 ```bash
@@ -693,6 +707,12 @@ curl "{BASE_URL}/api/bg/ais/accounts/{ACCOUNT_ID}/balances?providerCode=backbase
 Query parameters:
 - `providerCode` (optional, default `backbase_dev_eu`)
 - `consentId` (required unless provided as `Consent-Id` header)
+
+#### PIS (BG)
+No Berlin Group PIS endpoints are currently exposed in this simulator.
+
+#### CBPII/COF (BG)
+No Berlin Group CBPII/COF endpoints are currently exposed in this simulator.
 
 ---
 
