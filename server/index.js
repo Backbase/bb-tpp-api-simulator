@@ -17,6 +17,7 @@ import ukAisRouter from './routes/uk/ais.js';
 import ukPisRouter from './routes/uk/pis.js';
 import ukCbpiiRouter from './routes/uk/cbpii.js';
 import bgAisRouter from './routes/bg/ais.js';
+import bgFundsRouter from './routes/bg/funds.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,6 +45,7 @@ app.use('/api/uk/ais', ukAisRouter);
 app.use('/api/uk/pis', ukPisRouter);
 app.use('/api/uk/cbpii', ukCbpiiRouter);
 app.use('/api/bg/ais', bgAisRouter);
+app.use('/api/bg/funds', bgFundsRouter);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -157,6 +159,42 @@ app.get('/', (req, res) => {
         path: '/api/bg/ais/accounts/:accountId/balances',
         description: 'Get Berlin Group AIS account balances (requires Consent-Id)',
         example: 'curl "http://localhost:8080/api/bg/ais/accounts/ACCOUNT_ID/balances?consentId=CONSENT_ID"'
+      },
+      createBGFundsConsent: {
+        method: 'POST',
+        path: '/api/bg/funds/consent',
+        description: 'Create Berlin Group Funds (CBPII/CoF) consent',
+        example: 'curl -X POST http://localhost:8080/api/bg/funds/consent -H "Content-Type: application/json" -d "{}"'
+      },
+      getBGFundsConsent: {
+        method: 'GET',
+        path: '/api/bg/funds/consent/:consentId',
+        description: 'Show Berlin Group Funds consent by consent ID',
+        example: 'curl "http://localhost:8080/api/bg/funds/consent/CONSENT_ID"'
+      },
+      getBGFundsConsentStatus: {
+        method: 'GET',
+        path: '/api/bg/funds/consent/:consentId/status',
+        description: 'Get Berlin Group Funds consent status by consent ID',
+        example: 'curl "http://localhost:8080/api/bg/funds/consent/CONSENT_ID/status"'
+      },
+      deleteBGFundsConsent: {
+        method: 'DELETE',
+        path: '/api/bg/funds/consent/:consentId',
+        description: 'Delete Berlin Group Funds consent by consent ID',
+        example: 'curl -X DELETE "http://localhost:8080/api/bg/funds/consent/CONSENT_ID"'
+      },
+      getBGFundsConsentAuthorisation: {
+        method: 'GET',
+        path: '/api/bg/funds/consent/:consentId/authorisations/:authorisationId',
+        description: 'Get Berlin Group Funds consent authorisation by IDs',
+        example: 'curl "http://localhost:8080/api/bg/funds/consent/CONSENT_ID/authorisations/AUTHORISATION_ID"'
+      },
+      createBGFundsConfirmation: {
+        method: 'POST',
+        path: '/api/bg/funds/confirmations',
+        description: 'Create Berlin Group Funds confirmation (requires Consent-Id)',
+        example: 'curl -X POST http://localhost:8080/api/bg/funds/confirmations -H "Content-Type: application/json" -d "{\\"consentId\\":\\"CONSENT_ID\\"}"'
       }
     },
     documentation: 'See README.md for detailed examples and workflow'
@@ -203,6 +241,8 @@ app.listen(PORT, () => {
   console.log(`   curl -X POST http://localhost:${PORT}/api/uk/cbpii/consent -H "Content-Type: application/json" -d "{}"\n`);
   console.log('Quick Start (Create BG AIS Consent):');
   console.log(`   curl -X POST http://localhost:${PORT}/api/bg/ais/consent -H "Content-Type: application/json" -d "{}"\n`);
+  console.log('Quick Start (Create BG Funds Consent):');
+  console.log(`   curl -X POST http://localhost:${PORT}/api/bg/funds/consent -H "Content-Type: application/json" -d "{}"\n`);
 });
 
 export default app;

@@ -33,6 +33,12 @@ API simulator for UK Open Banking AIS (Account Information Services), PIS (Payme
       - [Account Balance](#account-balance-bg)
     - [PIS (BG)](#pis-bg)
     - [CBPII/COF (BG)](#cbpiicof-bg)
+      - [Consent Create](#consent-create-bg-funds)
+      - [Consents Show](#consents-show-bg-funds)
+      - [Consents Status](#consents-status-bg-funds)
+      - [Consent Destroy](#consent-destroy-bg-funds)
+      - [Consent Authorisation](#consent-authorisation-bg-funds)
+      - [Confirmations](#confirmations-bg-funds)
 - [UK Default Consent Objects (Empty Request Body)](#uk-default-consent-objects-empty-request-body)
 - [BG Default Consent Object (Empty Request Body)](#bg-default-consent-object-empty-request-body)
 - [Configuration (.env)](#configuration-env)
@@ -568,7 +574,9 @@ curl "{BASE_URL}/api/uk/cbpii/consent/urn-backbase_dev_uk-intent-12345?providerC
 
 ### BG Endpoints
 
-Berlin Group AIS consent and account-data endpoints are available at `/api/bg/ais/*`.
+Berlin Group endpoints are available at:
+- AIS: `/api/bg/ais/*`
+- Funds (CBPII/COF): `/api/bg/funds/*`
 
 Required headers sent upstream for all BG AIS consent calls:
 - `X-Request-ID`
@@ -712,7 +720,93 @@ Query parameters:
 No Berlin Group PIS endpoints are currently exposed in this simulator.
 
 #### CBPII/COF (BG)
-No Berlin Group CBPII/COF endpoints are currently exposed in this simulator.
+Berlin Group Funds endpoints (CBPII/COF-style) are available at `/api/bg/funds/*`.
+
+Required signed headers sent upstream for all Funds calls:
+- `X-Request-ID`
+- `Digest`
+- `Date`
+- `TPP-Signature-Certificate`
+- `Signature`
+
+##### Consent Create (BG Funds)
+Create a confirmation-of-funds consent.
+
+```bash
+curl -X POST {BASE_URL}/api/bg/funds/consent \
+  -H "Content-Type: application/json" \
+  -d '{
+    "providerCode": "backbase_dev_eu",
+    "account": {
+      "iban": "XF88148405667533"
+    },
+    "redirectPreferred": false
+  }'
+```
+
+Defaults when request body is `{}`:
+- `providerCode`: `backbase_dev_eu` (or `BG_PROVIDER_CODE` from env)
+- `redirectUri`: `https://backbase-dev.com/callback` (or `BG_REDIRECT_URI` / `REDIRECT_URI`)
+- `redirectPreferred`: `false`
+- `account`: `{ "iban": "XF88148405667533" }`
+
+##### Consents Show (BG Funds)
+Show confirmation-of-funds consent by ID.
+
+```bash
+curl "{BASE_URL}/api/bg/funds/consent/{CONSENT_ID}?providerCode=backbase_dev_eu"
+```
+
+##### Consents Status (BG Funds)
+Get confirmation-of-funds consent status by ID.
+
+```bash
+curl "{BASE_URL}/api/bg/funds/consent/{CONSENT_ID}/status?providerCode=backbase_dev_eu"
+```
+
+##### Consent Destroy (BG Funds)
+Delete confirmation-of-funds consent by ID.
+
+```bash
+curl -X DELETE "{BASE_URL}/api/bg/funds/consent/{CONSENT_ID}?providerCode=backbase_dev_eu"
+```
+
+##### Consent Authorisation (BG Funds)
+Get confirmation-of-funds consent authorisation details.
+
+```bash
+curl "{BASE_URL}/api/bg/funds/consent/{CONSENT_ID}/authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
+```
+
+##### Confirmations (BG Funds)
+Create a funds confirmation result for an existing consent.
+
+```bash
+curl -X POST {BASE_URL}/api/bg/funds/confirmations \
+  -H "Content-Type: application/json" \
+  -d '{
+    "providerCode": "backbase_dev_eu",
+    "consentId": "{CONSENT_ID}",
+    "account": {
+      "iban": "XF42663005510913"
+    },
+    "instructedAmount": {
+      "currency": "EUR",
+      "amount": "100"
+    }
+  }'
+```
+
+Defaults:
+- `providerCode`: `backbase_dev_eu` (or `BG_PROVIDER_CODE` from env)
+- `redirectPreferred`: `false`
+- `account`: `{ "iban": "XF42663005510913" }`
+- `instructedAmount`: `{ "currency": "EUR", "amount": "100" }`
+
+`consentId` is required and can be provided in:
+- request body (`consentId`)
+- query param (`consentId`)
+- header (`Consent-Id`)
 
 ---
 
