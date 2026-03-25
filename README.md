@@ -1,6 +1,6 @@
 # Backbase TPP API Simulator
 
-API simulator for UK Open Banking AIS (Account Information Services), PIS (Payment Initiation Services), and CBPII (Confirmation of Funds) consent flows with SaltEdge.
+API simulator for UK & Berlin Group Open Banking AIS (Account Information Services), PIS (Payment Initiation Services), and CBPII (Confirmation of Funds) consent flows with SaltEdge.
 
 ## Table of Contents
 
