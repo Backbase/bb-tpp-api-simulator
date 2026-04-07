@@ -18,6 +18,8 @@ import {
 } from '../../services/bg/shared/config.js';
 
 const router = express.Router();
+const BG_AUTHORIZATION_URL_MAX_ATTEMPTS = 10;
+const BG_AUTHORIZATION_URL_RETRY_DELAY_MS = 1500;
 
 function defaultConsentAccount() {
   return {
@@ -46,6 +48,44 @@ function ensureConsentId(consentId) {
   }
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function resolveAuthorizationUrl(providerCode, consentId) {
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= BG_AUTHORIZATION_URL_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      const showData = await getFundsConsent(providerCode, consentId);
+      const authorizationUrl = showData?._links?.scaRedirect?.href;
+      if (authorizationUrl) return authorizationUrl;
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (attempt < BG_AUTHORIZATION_URL_MAX_ATTEMPTS) {
+      await sleep(BG_AUTHORIZATION_URL_RETRY_DELAY_MS);
+    }
+  }
+
+  if (lastError) {
+    const error = new Error(
+      `BG COF authorizationUrl not available after ${BG_AUTHORIZATION_URL_MAX_ATTEMPTS} attempts: ${lastError.message}`
+    );
+    error.status = 504;
+    throw error;
+  }
+
+  const error = new Error(
+    `BG COF authorizationUrl not available after ${BG_AUTHORIZATION_URL_MAX_ATTEMPTS} attempts`
+  );
+  error.status = 504;
+  throw error;
+}
+
 router.post('/consent', async (req, res, next) => {
   try {
     const defaults = getBgCreateDefaults();
@@ -63,7 +103,17 @@ router.post('/consent', async (req, res, next) => {
       redirectUri
     });
 
-    res.status(201).json(data);
+    const consentId = data?.consentId;
+    if (!consentId) {
+      throw new Error('BG COF create consent response does not include consentId');
+    }
+
+    const authorizationUrl = await resolveAuthorizationUrl(providerCode, consentId);
+
+    res.status(201).json({
+      ...data,
+      authorizationUrl
+    });
   } catch (error) {
     next(error);
   }
