@@ -183,7 +183,7 @@ router.post('/confirmations', async (req, res, next) => {
       instructedAmount,
       redirectPreferred
     });
-    res.status(201).json(data);
+    res.status(200).json(data);
   } catch (error) {
     next(error);
   }

@@ -784,6 +784,7 @@ curl "{BASE_URL}/api/bg/funds/consent/{CONSENT_ID}/authorisations/{AUTHORISATION
 
 ##### Confirmations (BG Funds)
 Create a funds confirmation result for an existing consent.
+On success, this endpoint returns HTTP `200`.
 
 ```bash
 curl -X POST {BASE_URL}/api/bg/funds/confirmations \
