@@ -106,6 +106,10 @@ The same inline PEM approach also works for BG using `BG_CERT_PEM` and `BG_PRIVA
 
 **UK API version:** UK AIS, PIS and CBPII consent API calls in this simulator target Open Banking `v3.1.11`.
 
+**Salt Edge API specs used by this simulator:**
+- UK (Open Banking v3.1.11): [https://priora.saltedge.com/docs/open_banking/backbase_prod_uk/v3.1.11](https://priora.saltedge.com/docs/open_banking/backbase_prod_uk/v3.1.11)
+- BG (Berlin Group): [https://priora.saltedge.com/docs/berlingroup/backbase_sandbox_eu](https://priora.saltedge.com/docs/berlingroup/backbase_sandbox_eu)
+
 Replace `{BASE_URL}` with the appropriate URL in all examples below.
 
 ---
