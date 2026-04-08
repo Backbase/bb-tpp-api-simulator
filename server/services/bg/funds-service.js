@@ -141,8 +141,12 @@ export async function createFundsConfirmation({
   };
 
   try {
-    const { data } = await axios.post(url, body, { headers });
-    return data;
+    const { status, data } = await axios.post(url, body, {
+      headers,
+      // Return SaltEdge status as-is (including non-2xx) so callers can proxy it transparently.
+      validateStatus: () => true
+    });
+    return { status, data };
   } catch (error) {
     throw new Error(toErrorMessage('Create BG Funds confirmation', error));
   }

@@ -176,14 +176,14 @@ router.post('/confirmations', async (req, res, next) => {
 
     ensureConsentId(consentId);
 
-    const data = await createFundsConfirmation({
+    const { status, data } = await createFundsConfirmation({
       providerCode,
       consentId,
       account,
       instructedAmount,
       redirectPreferred
     });
-    res.status(200).json(data);
+    res.status(status).json(data);
   } catch (error) {
     next(error);
   }
