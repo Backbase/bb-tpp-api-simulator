@@ -141,19 +141,16 @@ export async function deleteConsent(providerCode, consentId) {
 export async function listAccounts(providerCode, options = {}) {
   const { consentId, psuDeviceId, psuIpAddress, psuDeviceName } = options;
   const url = buildAccountsBaseUrl(providerCode);
-  try {
-    const { data } = await axios.get(url, {
-      headers: buildBgAisDataHeaders({
-        consentId,
-        psuDeviceId,
-        psuIpAddress,
-        psuDeviceName
-      })
-    });
-    return data;
-  } catch (error) {
-    throw new Error(toErrorMessage('List BG AIS accounts', error));
-  }
+  const { status, data } = await axios.get(url, {
+    headers: buildBgAisDataHeaders({
+      consentId,
+      psuDeviceId,
+      psuIpAddress,
+      psuDeviceName
+    }),
+    validateStatus: () => true
+  });
+  return { status, data };
 }
 
 export async function getSingleAccount(providerCode, accountId, options = {}) {

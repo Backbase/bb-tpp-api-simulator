@@ -158,8 +158,8 @@ router.get('/accounts', async (req, res, next) => {
     const { providerCode = getBgProviderCode() } = req.query;
     const options = extractDataRequestOptions(req);
     ensureConsentId(options.consentId);
-    const data = await listAccounts(providerCode, options);
-    res.json(data);
+    const { status, data } = await listAccounts(providerCode, options);
+    res.status(status).json(data);
   } catch (error) {
     next(error);
   }
