@@ -179,36 +179,30 @@ export async function getAccountTransactions(providerCode, accountId, options = 
   const { consentId, psuDeviceId, psuIpAddress, psuDeviceName, bookingStatus } = options;
   const baseUrl = `${buildAccountsBaseUrl(providerCode)}/${encodeURIComponent(accountId)}/transactions`;
   const url = addOptionalQueryParams(baseUrl, { bookingStatus });
-  try {
-    const { data } = await axios.get(url, {
-      headers: buildBgAisDataHeaders({
-        consentId,
-        psuDeviceId,
-        psuIpAddress,
-        psuDeviceName
-      })
-    });
-    return data;
-  } catch (error) {
-    throw new Error(toErrorMessage('Get BG AIS account transactions', error));
-  }
+  const { status, data } = await axios.get(url, {
+    headers: buildBgAisDataHeaders({
+      consentId,
+      psuDeviceId,
+      psuIpAddress,
+      psuDeviceName
+    }),
+    validateStatus: () => true
+  });
+  return { status, data };
 }
 
 export async function getAccountBalances(providerCode, accountId, options = {}) {
   const { consentId, psuDeviceId, psuIpAddress, psuDeviceName } = options;
   const url = `${buildAccountsBaseUrl(providerCode)}/${encodeURIComponent(accountId)}/balances`;
-  try {
-    const { data } = await axios.get(url, {
-      headers: buildBgAisDataHeaders({
-        consentId,
-        psuDeviceId,
-        psuIpAddress,
-        psuDeviceName
-      })
-    });
-    return data;
-  } catch (error) {
-    throw new Error(toErrorMessage('Get BG AIS account balances', error));
-  }
+  const { status, data } = await axios.get(url, {
+    headers: buildBgAisDataHeaders({
+      consentId,
+      psuDeviceId,
+      psuIpAddress,
+      psuDeviceName
+    }),
+    validateStatus: () => true
+  });
+  return { status, data };
 }
 

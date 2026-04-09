@@ -190,8 +190,8 @@ router.get('/accounts/:accountId/transactions', async (req, res, next) => {
       bookingStatus
     };
     ensureConsentId(options.consentId);
-    const data = await getAccountTransactions(providerCode, accountId, options);
-    res.json(data);
+    const { status, data } = await getAccountTransactions(providerCode, accountId, options);
+    res.status(status).json(data);
   } catch (error) {
     next(error);
   }
@@ -203,8 +203,8 @@ router.get('/accounts/:accountId/balances', async (req, res, next) => {
     const { accountId } = req.params;
     const options = extractDataRequestOptions(req);
     ensureConsentId(options.consentId);
-    const data = await getAccountBalances(providerCode, accountId, options);
-    res.json(data);
+    const { status, data } = await getAccountBalances(providerCode, accountId, options);
+    res.status(status).json(data);
   } catch (error) {
     next(error);
   }
