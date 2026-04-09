@@ -5,6 +5,7 @@
  * This module provides functions for:
  * - Creating CBPII funds-confirmation consents
  * - Retrieving CBPII consent details
+ * - Deleting (revoking) CBPII funds-confirmation consents
  */
 
 import axios from 'axios';
@@ -133,5 +134,38 @@ export async function getConsentDetails(providerCode, consentId) {
       || JSON.stringify(error.response?.data)
       || error.message;
     throw new Error(`Failed to fetch CBPII consent details: ${errorMessage}`);
+  }
+}
+
+/**
+ * Delete (revoke) a CBPII funds-confirmation consent.
+ * SaltEdge endpoint: DELETE /api/:providerCode/open-banking/v3.1.11/cbpii/funds-confirmation-consents/:consentId
+ *
+ * @param {string} providerCode - Open Banking provider code
+ * @param {string} consentId - CBPII consent identifier
+ */
+export async function deleteCBPIIConsent(providerCode, consentId) {
+  const baseUrl = getBaseUrl();
+  const url = `${baseUrl}/api/${encodeURIComponent(providerCode)}/open-banking/v3.1.11/cbpii/funds-confirmation-consents/${encodeURIComponent(consentId)}`;
+
+  const defaultRedirectUri = process.env.REDIRECT_URI || 'https://backbase-dev.com/callback';
+  const clientGrantToken = await getClientGrantToken(providerCode, defaultRedirectUri);
+
+  try {
+    await axios.delete(url, {
+      headers: {
+        Authorization: clientGrantToken
+      }
+    });
+  } catch (error) {
+    console.error('Failed to delete CBPII consent:');
+    console.error('Status:', error.response?.status);
+    console.error('Response data:', JSON.stringify(error.response?.data, null, 2));
+
+    const errorMessage = error.response?.data?.error
+      || error.response?.data?.message
+      || JSON.stringify(error.response?.data)
+      || error.message;
+    throw new Error(`Failed to delete CBPII consent: ${errorMessage}`);
   }
 }

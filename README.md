@@ -21,6 +21,7 @@ API simulator for UK & Berlin Group Open Banking AIS (Account Information Servic
     - [CBPII/COF (UK)](#cbpiicof-uk)
       - [Create CBPII Consent](#create-cbpii-consent-uk)
       - [Get CBPII Consent Details](#get-cbpii-consent-details-uk)
+      - [Revoke CBPII Consent](#revoke-cbpii-consent-uk)
   - [BG Endpoints](#bg-endpoints)
     - [AIS (BG)](#ais-bg)
       - [Create AIS Consent](#create-ais-consent-bg)
@@ -573,6 +574,32 @@ curl "{BASE_URL}/api/uk/cbpii/consent/urn-backbase_dev_uk-intent-12345?providerC
   }
 }
 ```
+
+---
+
+##### Revoke CBPII Consent (UK)
+Revoke/Delete an existing CBPII consent by ID. This calls SaltEdge to delete the funds-confirmation-consent.
+
+```bash
+curl -X DELETE "{BASE_URL}/api/uk/cbpii/consent/{CONSENT_ID}"
+```
+
+**Path Parameters:**
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `consentId` | string | The consent ID to revoke | Yes |
+
+**Query Parameters (optional):**
+| Parameter | Type | Description | Default |
+|-----------|------|-------------|---------|
+| `providerCode` | string | Open Banking provider code | `backbase_dev_uk` (from env) |
+
+**Example:**
+```bash
+curl -X DELETE "{BASE_URL}/api/uk/cbpii/consent/urn-backbase_dev_uk-intent-12345?providerCode=backbase_dev_uk"
+```
+
+**Response:** `204 No Content`
 
 ---
 

@@ -6,7 +6,8 @@
 import express from 'express';
 import {
   createCBPIIConsent,
-  getConsentDetails
+  getConsentDetails,
+  deleteCBPIIConsent
 } from '../../services/uk/cbpii-service.js';
 
 const router = express.Router();
@@ -78,6 +79,34 @@ router.get('/consent/:consentId', async (req, res, next) => {
       success: true,
       data: consent
     });
+  } catch (error) {
+    console.error(`\n❌ ERROR: ${error.message}\n`);
+    next(error);
+  }
+});
+
+/**
+ * DELETE /api/uk/cbpii/consent/:consentId
+ * Revoke (delete) a UK CBPII consent via SaltEdge.
+ *
+ * Path params:
+ * - consentId (required)
+ *
+ * Query params:
+ * - providerCode (optional, defaults to env)
+ */
+router.delete('/consent/:consentId', async (req, res, next) => {
+  try {
+    const { consentId } = req.params;
+    const {
+      providerCode = process.env.OB_PROVIDER_CODE || 'backbase_dev_uk'
+    } = req.query;
+
+    console.log(`\n🗑️ Deleting UK CBPII consent: ${consentId}...`);
+    await deleteCBPIIConsent(providerCode, consentId);
+
+    console.log('✅ UK CBPII consent deleted\n');
+    res.status(204).send();
   } catch (error) {
     console.error(`\n❌ ERROR: ${error.message}\n`);
     next(error);
