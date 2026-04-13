@@ -866,44 +866,64 @@ curl "{BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers/{PAYMENT_ID}
 
 ##### Payment Status (BG)
 
-Get the transaction status of a payment.
+Get the transaction status of a payment. Works for both single and periodic payments.
 
 ```bash
+# Single payment
 curl "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}/status?providerCode=backbase_dev_eu"
+
+# Periodic payment
+curl "{BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers/{PAYMENT_ID}/status?providerCode=backbase_dev_eu"
 ```
 
 ##### Payment Authorisation (BG)
 
-Get the SCA status of a payment authorisation.
+Get the SCA status of a payment authorisation. Works for both single and periodic payments.
 
 ```bash
+# Single payment
 curl "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}/authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
+
+# Periodic payment
+curl "{BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers/{PAYMENT_ID}/authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
 ```
 
 ##### Revoke Payment (BG)
 
-Cancel/revoke a payment. Only future-dated single payments and periodic payments can be revoked.
+Cancel/revoke a payment. Works for both single and periodic payments. Only future-dated single payments and periodic payments can be revoked.
 
 ```bash
+# Single payment
 curl -X DELETE "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}?providerCode=backbase_dev_eu"
+
+# Periodic payment
+curl -X DELETE "{BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers/{PAYMENT_ID}?providerCode=backbase_dev_eu"
 ```
 
 The upstream SaltEdge status code is returned as-is.
 
 ##### Cancellation Authorisations (BG)
 
-List cancellation authorisation IDs for a revoked payment.
+List cancellation authorisation IDs for a revoked payment. Works for both single and periodic payments.
 
 ```bash
+# Single payment
 curl "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}/cancellation-authorisations?providerCode=backbase_dev_eu"
+
+# Periodic payment
+curl "{BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers/{PAYMENT_ID}/cancellation-authorisations?providerCode=backbase_dev_eu"
 ```
 
 ##### Cancellation Authorisation (BG)
 
-Get the SCA status of a specific cancellation authorisation.
+Get the SCA status of a specific cancellation authorisation. Works for both single and periodic payments.
 
 ```bash
+# Single payment
 curl "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}/cancellation-authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
+
+# Periodic payment
+curl "{BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers/{PAYMENT_ID}/cancellation-authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
 ```
 
 ---
