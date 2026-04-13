@@ -33,6 +33,14 @@ API simulator for UK & Berlin Group Open Banking AIS (Account Information Servic
       - [Transactions List](#transactions-list-bg)
       - [Account Balance](#account-balance-bg)
     - [PIS (BG)](#pis-bg)
+      - [Create Single Payment](#create-single-payment-bg)
+      - [Create Periodic Payment](#create-periodic-payment-bg)
+      - [Show Payment](#show-payment-bg)
+      - [Payment Status](#payment-status-bg)
+      - [Payment Authorisation](#payment-authorisation-bg)
+      - [Revoke Payment](#revoke-payment-bg)
+      - [Cancellation Authorisations](#cancellation-authorisations-bg)
+      - [Cancellation Authorisation](#cancellation-authorisation-bg)
     - [CBPII/COF (BG)](#cbpiicof-bg)
       - [Consent Create](#consent-create-bg-funds)
       - [Consents Show](#consents-show-bg-funds)
@@ -607,6 +615,7 @@ curl -X DELETE "{BASE_URL}/api/uk/cbpii/consent/urn-backbase_dev_uk-intent-12345
 
 Berlin Group endpoints are available at:
 - AIS: `/api/bg/ais/*`
+- PIS: `/api/bg/pis/*`
 - Funds (CBPII/COF): `/api/bg/funds/*`
 
 Required headers sent upstream for all BG AIS consent calls:
@@ -748,7 +757,156 @@ Query parameters:
 - `consentId` (required unless provided as `Consent-Id` header)
 
 #### PIS (BG)
-No Berlin Group PIS endpoints are currently exposed in this simulator.
+
+Berlin Group PIS endpoints are available at `/api/bg/pis/*` and cover both **single payments** (`/payments/`) and **periodic payments** (`/periodic-payments/`).
+
+**Supported payment products** (pass as the `:paymentProduct` path parameter):
+- `cross-border-credit-transfers`
+- `sepa-credit-transfers`
+- `instant-sepa-credit-transfers`
+- `internal-transfer`
+
+SaltEdge PIS API spec: [https://priora.saltedge.com/docs/berlingroup/backbase_prod_eu/pis](https://priora.saltedge.com/docs/berlingroup/backbase_prod_eu/pis)
+
+##### Create Single Payment (BG)
+
+Create a single payment. The simulator forwards the payment body to SaltEdge, then polls the Show endpoint to resolve `authorizationUrl` (same pattern as AIS/COF).
+
+```bash
+curl -X POST {BASE_URL}/api/bg/pis/payments/sepa-credit-transfers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "endToEndIdentification": "E2E-12345",
+    "instructedAmount": { "amount": "1.00", "currency": "EUR" },
+    "creditorName": "Test Creditor",
+    "creditorAccount": { "iban": "NL62TRIO0417164106" },
+    "debtorAccount": { "iban": "NL62TRIO0417164106" },
+    "remittanceInformationUnstructured": "Test payment"
+  }'
+```
+
+The entire request body (minus `providerCode`, `redirectUri`, `redirectPreferred`) is passed through as the upstream SaltEdge payment payload. This means:
+- For **cross-border** payments, include `creditorAgent`, `chargeBearer`, `instructionPriority`, etc.
+- For **internal transfers**, `creditorAccount` may use `bban` or `accountNumber` instead of `iban`.
+
+| Field | Type | Description | Default |
+|-------|------|-------------|---------|
+| `providerCode` | string | BG provider code | `backbase_dev_eu` (from env) |
+| `redirectUri` | string | Redirect callback URL | From env `BG_REDIRECT_URI` |
+| `redirectPreferred` | boolean | TPP redirect preference | `false` |
+| *(all other fields)* | — | Forwarded as-is to SaltEdge | — |
+
+**Response (201):**
+```json
+{
+  "paymentId": 179169,
+  "transactionStatus": "PDNG",
+  "_links": {
+    "self": { "href": "..." },
+    "status": { "href": "..." },
+    "scaStatus": { "href": "..." }
+  },
+  "authorizationUrl": "https://business-universal.dev2.oblm.azure.backbaseservices.com/..."
+}
+```
+
+##### Create Periodic Payment (BG)
+
+Create a periodic (standing-order) payment. Same authorizationUrl resolution as single payments.
+
+```bash
+curl -X POST {BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "endToEndIdentification": "PERIODIC-001",
+    "instructedAmount": { "amount": "10.00", "currency": "EUR" },
+    "creditorName": "Test Creditor",
+    "creditorAccount": { "iban": "NL62TRIO0417164106" },
+    "debtorAccount": { "iban": "NL62TRIO0417164106" },
+    "creditorAddress": { "country": "NL" },
+    "startDate": "2026-05-01",
+    "endDate": "2026-12-01",
+    "frequency": "Monthly",
+    "dayOfExecution": "1",
+    "executionRule": "following"
+  }'
+```
+
+Periodic-specific fields:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `startDate` | string | Yes | First execution date (YYYY-MM-DD) |
+| `endDate` | string | No | Last execution date (omit for infinite standing order) |
+| `frequency` | string | Yes | `Daily`, `Weekly`, `EveryTwoWeeks`, `Monthly`, `EveryTwoMonths`, `Quarterly`, `SemiAnnual`, `Annual` |
+| `dayOfExecution` | string | No | Day of month (1-31, `31` = ultimo) |
+| `executionRule` | string | No | `following` or `preceding` (weekend/holiday behavior) |
+
+**Response (201):**
+```json
+{
+  "periodicPaymentId": 179170,
+  "transactionStatus": "PDNG",
+  "_links": { "..." },
+  "authorizationUrl": "https://..."
+}
+```
+
+##### Show Payment (BG)
+
+Retrieve payment details by ID. Works for both single and periodic payments.
+
+```bash
+# Single payment
+curl "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}?providerCode=backbase_dev_eu"
+
+# Periodic payment
+curl "{BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers/{PAYMENT_ID}?providerCode=backbase_dev_eu"
+```
+
+##### Payment Status (BG)
+
+Get the transaction status of a payment.
+
+```bash
+curl "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}/status?providerCode=backbase_dev_eu"
+```
+
+##### Payment Authorisation (BG)
+
+Get the SCA status of a payment authorisation.
+
+```bash
+curl "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}/authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
+```
+
+##### Revoke Payment (BG)
+
+Cancel/revoke a payment. Only future-dated single payments and periodic payments can be revoked.
+
+```bash
+curl -X DELETE "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}?providerCode=backbase_dev_eu"
+```
+
+The upstream SaltEdge status code is returned as-is.
+
+##### Cancellation Authorisations (BG)
+
+List cancellation authorisation IDs for a revoked payment.
+
+```bash
+curl "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}/cancellation-authorisations?providerCode=backbase_dev_eu"
+```
+
+##### Cancellation Authorisation (BG)
+
+Get the SCA status of a specific cancellation authorisation.
+
+```bash
+curl "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}/cancellation-authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
+```
+
+---
 
 #### CBPII/COF (BG)
 Berlin Group Funds endpoints (CBPII/COF-style) are available at `/api/bg/funds/*`.
