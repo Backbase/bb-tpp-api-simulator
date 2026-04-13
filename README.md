@@ -766,8 +766,6 @@ Berlin Group PIS endpoints are available at `/api/bg/pis/*` and cover both **sin
 - `instant-sepa-credit-transfers`
 - `internal-transfer`
 
-SaltEdge PIS API spec: [https://priora.saltedge.com/docs/berlingroup/backbase_prod_eu/pis](https://priora.saltedge.com/docs/berlingroup/backbase_prod_eu/pis)
-
 ##### Create Single Payment (BG)
 
 Create a single payment. The simulator forwards the payment body to SaltEdge, then polls the Show endpoint to resolve `authorizationUrl` (same pattern as AIS/COF).
