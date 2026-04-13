@@ -18,6 +18,7 @@ import ukPisRouter from './routes/uk/pis.js';
 import ukCbpiiRouter from './routes/uk/cbpii.js';
 import bgAisRouter from './routes/bg/ais.js';
 import bgFundsRouter from './routes/bg/funds.js';
+import bgPisRouter from './routes/bg/pis.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,6 +47,7 @@ app.use('/api/uk/pis', ukPisRouter);
 app.use('/api/uk/cbpii', ukCbpiiRouter);
 app.use('/api/bg/ais', bgAisRouter);
 app.use('/api/bg/funds', bgFundsRouter);
+app.use('/api/bg/pis', bgPisRouter);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -195,6 +197,54 @@ app.get('/', (req, res) => {
         path: '/api/bg/funds/confirmations',
         description: 'Create Berlin Group Funds confirmation (requires Consent-Id)',
         example: 'curl -X POST http://localhost:8080/api/bg/funds/confirmations -H "Content-Type: application/json" -d "{\\"consentId\\":\\"CONSENT_ID\\"}"'
+      },
+      createBGSinglePayment: {
+        method: 'POST',
+        path: '/api/bg/pis/payments/:paymentProduct',
+        description: 'Create Berlin Group single payment (sepa-credit-transfers, instant-sepa-credit-transfers, cross-border-credit-transfers, internal-transfer)',
+        example: 'curl -X POST http://localhost:8080/api/bg/pis/payments/sepa-credit-transfers -H "Content-Type: application/json" -d "{\\"endToEndIdentification\\":\\"test\\",\\"instructedAmount\\":{\\"amount\\":\\"1.00\\",\\"currency\\":\\"EUR\\"},\\"creditorName\\":\\"Test\\",\\"creditorAccount\\":{\\"iban\\":\\"NL62TRIO0417164106\\"}}"'
+      },
+      getBGSinglePayment: {
+        method: 'GET',
+        path: '/api/bg/pis/payments/:paymentProduct/:paymentId',
+        description: 'Show Berlin Group single payment details',
+        example: 'curl "http://localhost:8080/api/bg/pis/payments/sepa-credit-transfers/PAYMENT_ID"'
+      },
+      getBGSinglePaymentStatus: {
+        method: 'GET',
+        path: '/api/bg/pis/payments/:paymentProduct/:paymentId/status',
+        description: 'Get Berlin Group single payment transaction status',
+        example: 'curl "http://localhost:8080/api/bg/pis/payments/sepa-credit-transfers/PAYMENT_ID/status"'
+      },
+      deleteBGSinglePayment: {
+        method: 'DELETE',
+        path: '/api/bg/pis/payments/:paymentProduct/:paymentId',
+        description: 'Revoke/cancel a Berlin Group single payment',
+        example: 'curl -X DELETE "http://localhost:8080/api/bg/pis/payments/sepa-credit-transfers/PAYMENT_ID"'
+      },
+      createBGPeriodicPayment: {
+        method: 'POST',
+        path: '/api/bg/pis/periodic-payments/:paymentProduct',
+        description: 'Create Berlin Group periodic (standing-order) payment',
+        example: 'curl -X POST http://localhost:8080/api/bg/pis/periodic-payments/sepa-credit-transfers -H "Content-Type: application/json" -d "{\\"endToEndIdentification\\":\\"test\\",\\"instructedAmount\\":{\\"amount\\":\\"10.00\\",\\"currency\\":\\"EUR\\"},\\"creditorName\\":\\"Test\\",\\"creditorAccount\\":{\\"iban\\":\\"NL62TRIO0417164106\\"},\\"startDate\\":\\"2026-05-01\\",\\"frequency\\":\\"Monthly\\"}"'
+      },
+      getBGPeriodicPayment: {
+        method: 'GET',
+        path: '/api/bg/pis/periodic-payments/:paymentProduct/:paymentId',
+        description: 'Show Berlin Group periodic payment details',
+        example: 'curl "http://localhost:8080/api/bg/pis/periodic-payments/sepa-credit-transfers/PAYMENT_ID"'
+      },
+      getBGPeriodicPaymentStatus: {
+        method: 'GET',
+        path: '/api/bg/pis/periodic-payments/:paymentProduct/:paymentId/status',
+        description: 'Get Berlin Group periodic payment transaction status',
+        example: 'curl "http://localhost:8080/api/bg/pis/periodic-payments/sepa-credit-transfers/PAYMENT_ID/status"'
+      },
+      deleteBGPeriodicPayment: {
+        method: 'DELETE',
+        path: '/api/bg/pis/periodic-payments/:paymentProduct/:paymentId',
+        description: 'Revoke/cancel a Berlin Group periodic payment',
+        example: 'curl -X DELETE "http://localhost:8080/api/bg/pis/periodic-payments/sepa-credit-transfers/PAYMENT_ID"'
       }
     },
     documentation: 'See README.md for detailed examples and workflow'
@@ -243,6 +293,10 @@ app.listen(PORT, () => {
   console.log(`   curl -X POST http://localhost:${PORT}/api/bg/ais/consent -H "Content-Type: application/json" -d "{}"\n`);
   console.log('Quick Start (Create BG Funds Consent):');
   console.log(`   curl -X POST http://localhost:${PORT}/api/bg/funds/consent -H "Content-Type: application/json" -d "{}"\n`);
+  console.log('Quick Start (Create BG Single Payment):');
+  console.log(`   curl -X POST http://localhost:${PORT}/api/bg/pis/payments/sepa-credit-transfers -H "Content-Type: application/json" -d '{"endToEndIdentification":"test","instructedAmount":{"amount":"1.00","currency":"EUR"},"creditorName":"Test","creditorAccount":{"iban":"NL62TRIO0417164106"}}'\n`);
+  console.log('Quick Start (Create BG Periodic Payment):');
+  console.log(`   curl -X POST http://localhost:${PORT}/api/bg/pis/periodic-payments/sepa-credit-transfers -H "Content-Type: application/json" -d '{"endToEndIdentification":"test","instructedAmount":{"amount":"10.00","currency":"EUR"},"creditorName":"Test","creditorAccount":{"iban":"NL62TRIO0417164106"},"startDate":"2026-05-01","frequency":"Monthly"}'\n`);
 });
 
 export default app;
