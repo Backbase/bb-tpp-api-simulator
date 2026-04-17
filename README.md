@@ -766,12 +766,21 @@ Berlin Group PIS endpoints are available at `/api/bg/pis/*` and cover both **sin
 - `instant-sepa-credit-transfers`
 - `internal-transfer`
 
+Use one of the products above in the examples below:
+
+```bash
+PAYMENT_PRODUCT=sepa-credit-transfers
+# or: instant-sepa-credit-transfers
+# or: cross-border-credit-transfers
+# or: internal-transfer
+```
+
 ##### Create Single Payment (BG)
 
 Create a single payment. The simulator forwards the payment body to SaltEdge, then polls the Show endpoint to resolve `authorizationUrl` (same pattern as AIS/COF).
 
 ```bash
-curl -X POST {BASE_URL}/api/bg/pis/payments/sepa-credit-transfers \
+curl -X POST {BASE_URL}/api/bg/pis/payments/{PAYMENT_PRODUCT} \
   -H "Content-Type: application/json" \
   -d '{
     "endToEndIdentification": "E2E-12345",
@@ -780,6 +789,48 @@ curl -X POST {BASE_URL}/api/bg/pis/payments/sepa-credit-transfers \
     "creditorAccount": { "iban": "NL62TRIO0417164106" },
     "debtorAccount": { "iban": "NL62TRIO0417164106" },
     "remittanceInformationUnstructured": "Test payment"
+  }'
+```
+
+Additional single-payment examples by product:
+
+```bash
+# Instant SEPA
+curl -X POST {BASE_URL}/api/bg/pis/payments/instant-sepa-credit-transfers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "endToEndIdentification": "INSTANT-001",
+    "instructedAmount": { "amount": "3.50", "currency": "EUR" },
+    "creditorName": "Instant Creditor",
+    "creditorAccount": { "iban": "NL62TRIO0417164106" },
+    "debtorAccount": { "iban": "NL62TRIO0417164106" },
+    "remittanceInformationUnstructured": "Instant test payment"
+  }'
+
+# Cross-border credit transfer (include product-specific fields)
+curl -X POST {BASE_URL}/api/bg/pis/payments/cross-border-credit-transfers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "endToEndIdentification": "CB-001",
+    "instructedAmount": { "amount": "150.00", "currency": "EUR" },
+    "creditorName": "Cross Border Creditor",
+    "creditorAccount": { "iban": "DE89370400440532013000" },
+    "creditorAgent": { "bicfi": "DEUTDEFF" },
+    "chargeBearer": "SLEV",
+    "instructionPriority": "NORM",
+    "remittanceInformationUnstructured": "Cross-border test payment"
+  }'
+
+# Internal transfer (creditorAccount can be bban/accountNumber)
+curl -X POST {BASE_URL}/api/bg/pis/payments/internal-transfer \
+  -H "Content-Type: application/json" \
+  -d '{
+    "endToEndIdentification": "INT-001",
+    "instructedAmount": { "amount": "25.00", "currency": "EUR" },
+    "creditorName": "Internal Beneficiary",
+    "creditorAccount": { "accountNumber": "1234567890" },
+    "debtorAccount": { "iban": "NL62TRIO0417164106" },
+    "remittanceInformationUnstructured": "Internal transfer test"
   }'
 ```
 
@@ -813,7 +864,7 @@ The entire request body (minus `providerCode`, `redirectUri`, `redirectPreferred
 Create a periodic (standing-order) payment. Same authorizationUrl resolution as single payments.
 
 ```bash
-curl -X POST {BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers \
+curl -X POST {BASE_URL}/api/bg/pis/periodic-payments/{PAYMENT_PRODUCT} \
   -H "Content-Type: application/json" \
   -d '{
     "endToEndIdentification": "PERIODIC-001",
@@ -856,10 +907,10 @@ Retrieve payment details by ID. Works for both single and periodic payments.
 
 ```bash
 # Single payment
-curl "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}?providerCode=backbase_dev_eu"
+curl "{BASE_URL}/api/bg/pis/payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}?providerCode=backbase_dev_eu"
 
 # Periodic payment
-curl "{BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers/{PAYMENT_ID}?providerCode=backbase_dev_eu"
+curl "{BASE_URL}/api/bg/pis/periodic-payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}?providerCode=backbase_dev_eu"
 ```
 
 ##### Payment Status (BG)
@@ -868,10 +919,10 @@ Get the transaction status of a payment. Works for both single and periodic paym
 
 ```bash
 # Single payment
-curl "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}/status?providerCode=backbase_dev_eu"
+curl "{BASE_URL}/api/bg/pis/payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}/status?providerCode=backbase_dev_eu"
 
 # Periodic payment
-curl "{BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers/{PAYMENT_ID}/status?providerCode=backbase_dev_eu"
+curl "{BASE_URL}/api/bg/pis/periodic-payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}/status?providerCode=backbase_dev_eu"
 ```
 
 ##### Payment Authorisation (BG)
@@ -880,10 +931,10 @@ Get the SCA status of a payment authorisation. Works for both single and periodi
 
 ```bash
 # Single payment
-curl "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}/authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
+curl "{BASE_URL}/api/bg/pis/payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}/authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
 
 # Periodic payment
-curl "{BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers/{PAYMENT_ID}/authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
+curl "{BASE_URL}/api/bg/pis/periodic-payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}/authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
 ```
 
 ##### Revoke Payment (BG)
@@ -892,10 +943,10 @@ Cancel/revoke a payment. Works for both single and periodic payments. Only futur
 
 ```bash
 # Single payment
-curl -X DELETE "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}?providerCode=backbase_dev_eu"
+curl -X DELETE "{BASE_URL}/api/bg/pis/payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}?providerCode=backbase_dev_eu"
 
 # Periodic payment
-curl -X DELETE "{BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers/{PAYMENT_ID}?providerCode=backbase_dev_eu"
+curl -X DELETE "{BASE_URL}/api/bg/pis/periodic-payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}?providerCode=backbase_dev_eu"
 ```
 
 The upstream SaltEdge status code is returned as-is.
@@ -906,10 +957,10 @@ List cancellation authorisation IDs for a revoked payment. Works for both single
 
 ```bash
 # Single payment
-curl "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}/cancellation-authorisations?providerCode=backbase_dev_eu"
+curl "{BASE_URL}/api/bg/pis/payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}/cancellation-authorisations?providerCode=backbase_dev_eu"
 
 # Periodic payment
-curl "{BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers/{PAYMENT_ID}/cancellation-authorisations?providerCode=backbase_dev_eu"
+curl "{BASE_URL}/api/bg/pis/periodic-payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}/cancellation-authorisations?providerCode=backbase_dev_eu"
 ```
 
 ##### Cancellation Authorisation (BG)
@@ -918,10 +969,10 @@ Get the SCA status of a specific cancellation authorisation. Works for both sing
 
 ```bash
 # Single payment
-curl "{BASE_URL}/api/bg/pis/payments/sepa-credit-transfers/{PAYMENT_ID}/cancellation-authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
+curl "{BASE_URL}/api/bg/pis/payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}/cancellation-authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
 
 # Periodic payment
-curl "{BASE_URL}/api/bg/pis/periodic-payments/sepa-credit-transfers/{PAYMENT_ID}/cancellation-authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
+curl "{BASE_URL}/api/bg/pis/periodic-payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}/cancellation-authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
 ```
 
 ---
