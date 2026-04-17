@@ -124,24 +124,3 @@ export async function deletePayment({
   }
 }
 
-export async function listCancellationAuthorisations(providerCode, paymentType, paymentProduct, paymentId) {
-  const base = buildPaymentBaseUrl(providerCode, paymentType, paymentProduct);
-  const url = `${base}/${encodeURIComponent(paymentId)}/cancellation-authorisations`;
-  try {
-    const { data } = await axios.get(url, { headers: readOnlyHeaders() });
-    return data;
-  } catch (error) {
-    throw new Error(toErrorMessage(`List BG ${paymentType} cancellation authorisations (${paymentProduct})`, error));
-  }
-}
-
-export async function getCancellationAuthorisation(providerCode, paymentType, paymentProduct, paymentId, authorisationId) {
-  const base = buildPaymentBaseUrl(providerCode, paymentType, paymentProduct);
-  const url = `${base}/${encodeURIComponent(paymentId)}/cancellation-authorisations/${encodeURIComponent(authorisationId)}`;
-  try {
-    const { data } = await axios.get(url, { headers: readOnlyHeaders() });
-    return data;
-  } catch (error) {
-    throw new Error(toErrorMessage(`Get BG ${paymentType} cancellation authorisation (${paymentProduct})`, error));
-  }
-}

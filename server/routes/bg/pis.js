@@ -16,9 +16,7 @@ import {
   getPayment,
   getPaymentStatus,
   getPaymentAuthorisation,
-  deletePayment,
-  listCancellationAuthorisations,
-  getCancellationAuthorisation
+  deletePayment
 } from '../../services/bg/pis-service.js';
 import {
   getBgProviderCode,
@@ -165,34 +163,6 @@ function createPaymentTypeHandlers(paymentType) {
         redirectUri
       });
       res.status(status).json(data);
-    } catch (error) {
-      next(error);
-    }
-  });
-
-  // GET /:paymentProduct/:paymentId/cancellation-authorisations — List cancellation auth IDs
-  subRouter.get('/:paymentProduct/:paymentId/cancellation-authorisations', async (req, res, next) => {
-    try {
-      const { paymentProduct, paymentId } = req.params;
-      const { providerCode = getBgProviderCode() } = req.query;
-      const data = await listCancellationAuthorisations(
-        providerCode, paymentType, paymentProduct, paymentId
-      );
-      res.json(data);
-    } catch (error) {
-      next(error);
-    }
-  });
-
-  // GET /:paymentProduct/:paymentId/cancellation-authorisations/:authorisationId
-  subRouter.get('/:paymentProduct/:paymentId/cancellation-authorisations/:authorisationId', async (req, res, next) => {
-    try {
-      const { paymentProduct, paymentId, authorisationId } = req.params;
-      const { providerCode = getBgProviderCode() } = req.query;
-      const data = await getCancellationAuthorisation(
-        providerCode, paymentType, paymentProduct, paymentId, authorisationId
-      );
-      res.json(data);
     } catch (error) {
       next(error);
     }

@@ -39,8 +39,6 @@ API simulator for UK & Berlin Group Open Banking AIS (Account Information Servic
       - [Payment Status](#payment-status-bg)
       - [Payment Authorisation](#payment-authorisation-bg)
       - [Revoke Payment](#revoke-payment-bg)
-      - [Cancellation Authorisations](#cancellation-authorisations-bg)
-      - [Cancellation Authorisation](#cancellation-authorisation-bg)
     - [CBPII/COF (BG)](#cbpiicof-bg)
       - [Consent Create](#consent-create-bg-funds)
       - [Consents Show](#consents-show-bg-funds)
@@ -950,30 +948,6 @@ curl -X DELETE "{BASE_URL}/api/bg/pis/periodic-payments/{PAYMENT_PRODUCT}/{PAYME
 ```
 
 The upstream SaltEdge status code is returned as-is.
-
-##### Cancellation Authorisations (BG)
-
-List cancellation authorisation IDs for a revoked payment. Works for both single and periodic payments.
-
-```bash
-# Single payment
-curl "{BASE_URL}/api/bg/pis/payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}/cancellation-authorisations?providerCode=backbase_dev_eu"
-
-# Periodic payment
-curl "{BASE_URL}/api/bg/pis/periodic-payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}/cancellation-authorisations?providerCode=backbase_dev_eu"
-```
-
-##### Cancellation Authorisation (BG)
-
-Get the SCA status of a specific cancellation authorisation. Works for both single and periodic payments.
-
-```bash
-# Single payment
-curl "{BASE_URL}/api/bg/pis/payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}/cancellation-authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
-
-# Periodic payment
-curl "{BASE_URL}/api/bg/pis/periodic-payments/{PAYMENT_PRODUCT}/{PAYMENT_ID}/cancellation-authorisations/{AUTHORISATION_ID}?providerCode=backbase_dev_eu"
-```
 
 ---
 
