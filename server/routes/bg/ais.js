@@ -174,8 +174,8 @@ router.get('/accounts/:accountId', async (req, res, next) => {
       withBalance
     };
     ensureConsentId(options.consentId);
-    const data = await getSingleAccount(providerCode, accountId, options);
-    res.json(data);
+    const { status, data } = await getSingleAccount(providerCode, accountId, options);
+    res.status(status).json(data);
   } catch (error) {
     next(error);
   }

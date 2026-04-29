@@ -157,19 +157,16 @@ export async function getSingleAccount(providerCode, accountId, options = {}) {
   const { consentId, psuDeviceId, psuIpAddress, psuDeviceName, withBalance } = options;
   const baseUrl = `${buildAccountsBaseUrl(providerCode)}/${encodeURIComponent(accountId)}`;
   const url = addOptionalQueryParams(baseUrl, { withBalance });
-  try {
-    const { data } = await axios.get(url, {
-      headers: buildBgAisDataHeaders({
-        consentId,
-        psuDeviceId,
-        psuIpAddress,
-        psuDeviceName
-      })
-    });
-    return data;
-  } catch (error) {
-    throw new Error(toErrorMessage('Get BG AIS single account', error));
-  }
+  const { status, data } = await axios.get(url, {
+    headers: buildBgAisDataHeaders({
+      consentId,
+      psuDeviceId,
+      psuIpAddress,
+      psuDeviceName
+    }),
+    validateStatus: () => true
+  });
+  return { status, data };
 }
 
 export async function getAccountTransactions(providerCode, accountId, options = {}) {
